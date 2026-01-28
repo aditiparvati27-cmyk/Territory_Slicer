@@ -3,9 +3,39 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useData, segmentAccounts, distributeAccounts, calculateRepStats } from "@/lib/logic";
-import { Loader2, TrendingUp } from "lucide-react";
+import { Loader2, TrendingUp, Users, DollarSign, Calculator } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
+
+// Custom Tooltip for the Chart
+const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-popover border border-border p-3 rounded-lg shadow-lg">
+        <p className="font-medium text-popover-foreground mb-2">{label}</p>
+        <div className="space-y-1 text-sm">
+          <div className="flex items-center justify-between gap-4 text-muted-foreground">
+            <span>Segment:</span>
+            <span className={cn(
+              "font-medium",
+              data.segment === "Enterprise" ? "text-chart-2" : "text-chart-1"
+            )}>{data.segment}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted-foreground">Total ARR:</span>
+            <span className="font-mono font-medium text-foreground">{formatCurrency(data.totalARR)}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted-foreground">Accounts:</span>
+            <span className="font-mono font-medium text-foreground">{data.count}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 export function TerritorySlicer() {
   const { reps, accounts, loading } = useData();
@@ -27,6 +57,10 @@ export function TerritorySlicer() {
     const totalARR = accounts.reduce((sum, acc) => sum + acc.ARR, 0);
     const entAccounts = segmented.filter(a => a.Segment === "Enterprise");
     const mmAccounts = segmented.filter(a => a.Segment === "Mid Market");
+    
+    // Separate reps by segment for detailed view
+    const entReps = stats.filter(r => r.segment === "Enterprise");
+    const mmReps = stats.filter(r => r.segment === "Mid Market");
 
     return {
       stats,
@@ -35,6 +69,8 @@ export function TerritorySlicer() {
       mmCount: mmAccounts.length,
       entARR: entAccounts.reduce((sum, a) => sum + a.ARR, 0),
       mmARR: mmAccounts.reduce((sum, a) => sum + a.ARR, 0),
+      entReps,
+      mmReps
     };
   }, [reps, accounts, threshold, loading]);
 
@@ -145,9 +181,8 @@ export function TerritorySlicer() {
                     tickFormatter={(val) => `$${(val/1000000).toFixed(1)}M`}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--popover))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                    itemStyle={{ color: 'hsl(var(--popover-foreground))' }}
-                    formatter={(val: number) => formatCurrency(val)}
+                    content={<CustomTooltip formatCurrency={formatCurrency} />}
+                    cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
                   />
                   <Bar dataKey="totalARR" radius={[4, 4, 0, 0]}>
                     {processedData.stats.map((entry, index) => (
@@ -160,65 +195,108 @@ export function TerritorySlicer() {
         </Card>
       </div>
 
-      {/* DETAILED STATS TABLE */}
-      <Card className="border-primary/10 bg-card/50">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-medium">Rep Assignments</CardTitle>
-          <div className="flex gap-4 text-sm text-muted-foreground">
-             <div className="flex items-center gap-2">
-               <div className="w-3 h-3 rounded-full bg-chart-2"></div>
-               <span>Enterprise</span>
-             </div>
-             <div className="flex items-center gap-2">
-               <div className="w-3 h-3 rounded-full bg-chart-1"></div>
-               <span>Mid-Market</span>
-             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-             {processedData.stats.map((rep) => (
-               <div key={rep.name} className="flex items-center justify-between p-4 bg-background/40 rounded-lg border border-border/40 hover:bg-background/60 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm",
-                      rep.segment === "Enterprise" ? "bg-chart-2/20 text-chart-2" : "bg-chart-1/20 text-chart-1"
-                    )}>
+      {/* DETAILED STATS - SPLIT VIEW */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* ENTERPRISE SECTION */}
+        <Card className="border-primary/10 bg-card/50">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-lg font-medium flex items-center gap-2 text-chart-2">
+                <Users className="w-5 h-5" />
+                Enterprise Teams
+              </CardTitle>
+              <CardDescription className="mt-1">
+                {processedData.entReps.length} Reps • {processedData.entCount} Accounts
+              </CardDescription>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-muted-foreground uppercase tracking-wider">Total ARR</div>
+              <div className="text-xl font-bold font-mono text-foreground">{formatCurrency(processedData.entARR)}</div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="space-y-3">
+              {processedData.entReps.map((rep) => (
+                <div key={rep.name} className="group flex items-center justify-between p-3 bg-background/40 rounded-lg border border-border/40 hover:bg-background/60 hover:border-chart-2/30 transition-all cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-chart-2/10 text-chart-2 group-hover:bg-chart-2/20">
                       {rep.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="font-medium text-foreground">{rep.name}</div>
-                      <div className="text-xs text-muted-foreground flex gap-2">
+                      <div className="font-medium text-sm text-foreground">{rep.name}</div>
+                      <div className="text-[10px] text-muted-foreground flex gap-1.5 uppercase tracking-wide">
                         <span>{rep.location}</span>
-                        <span>•</span>
-                        <span>{rep.segment}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-8">
-                     <div className="text-right">
-                       <div className="text-xs text-muted-foreground">Accounts</div>
-                       <div className="font-mono font-medium">{rep.count}</div>
-                     </div>
-                     <div className="text-right w-32">
-                       <div className="text-xs text-muted-foreground">Total ARR</div>
-                       <div className="font-mono font-bold text-foreground">{formatCurrency(rep.totalARR)}</div>
-                     </div>
-                     <div className="w-24">
-                        <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
-                          <div 
-                            className={cn("h-full rounded-full", rep.segment === "Enterprise" ? "bg-chart-2" : "bg-chart-1")} 
-                            style={{ width: `${(rep.totalARR / (processedData.totalARR / reps.length) * 100) * 0.2}%` }} // Simplified visual scaling
-                          />
-                        </div>
-                     </div>
+                  <div className="flex items-center gap-4 text-right">
+                    <div>
+                      <div className="text-[10px] text-muted-foreground uppercase">Accounts</div>
+                      <div className="font-mono text-sm font-medium">{rep.count}</div>
+                    </div>
+                    <div className="w-24">
+                      <div className="text-[10px] text-muted-foreground uppercase">ARR</div>
+                      <div className="font-mono text-sm font-bold text-foreground">{formatCurrency(rep.totalARR)}</div>
+                    </div>
                   </div>
-               </div>
-             ))}
-          </div>
-        </CardContent>
-      </Card>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* MID-MARKET SECTION */}
+        <Card className="border-primary/10 bg-card/50">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+             <div>
+              <CardTitle className="text-lg font-medium flex items-center gap-2 text-chart-1">
+                <Users className="w-5 h-5" />
+                Mid-Market Teams
+              </CardTitle>
+              <CardDescription className="mt-1">
+                {processedData.mmReps.length} Reps • {processedData.mmCount} Accounts
+              </CardDescription>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-muted-foreground uppercase tracking-wider">Total ARR</div>
+              <div className="text-xl font-bold font-mono text-foreground">{formatCurrency(processedData.mmARR)}</div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="space-y-3">
+              {processedData.mmReps.map((rep) => (
+                <div key={rep.name} className="group flex items-center justify-between p-3 bg-background/40 rounded-lg border border-border/40 hover:bg-background/60 hover:border-chart-1/30 transition-all cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-chart-1/10 text-chart-1 group-hover:bg-chart-1/20">
+                      {rep.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm text-foreground">{rep.name}</div>
+                      <div className="text-[10px] text-muted-foreground flex gap-1.5 uppercase tracking-wide">
+                        <span>{rep.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-right">
+                    <div>
+                      <div className="text-[10px] text-muted-foreground uppercase">Accounts</div>
+                      <div className="font-mono text-sm font-medium">{rep.count}</div>
+                    </div>
+                    <div className="w-24">
+                      <div className="text-[10px] text-muted-foreground uppercase">ARR</div>
+                      <div className="font-mono text-sm font-bold text-foreground">{formatCurrency(rep.totalARR)}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+      </div>
     </div>
   );
 }
