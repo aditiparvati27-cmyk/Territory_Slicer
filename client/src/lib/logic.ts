@@ -98,63 +98,48 @@ function greedyBinPacking(accounts: Account[], reps: Rep[]): Account[] {
 function arrRiskBalance(accounts: Account[], reps: Rep[]): Account[] {
   const sortedAccounts = [...accounts].sort((a, b) => b.ARR - a.ARR);
   
-  const totalARR = accounts.reduce((sum, a) => sum + a.ARR, 0);
-  const targetARR = totalARR / reps.length;
-
-  // Initialize tracking
+  // Initialize tracking for each rep
   const repStats = new Map(reps.map(r => [r.Rep_Name, {
     ...r,
-    currentARR: 0,
+    totalARR: 0,
+    accounts: [] as Account[],
     count: 0,
     highRiskCount: 0
   }]));
 
   return sortedAccounts.map(account => {
     let bestRepName = reps[0].Rep_Name;
-    let maxScore = -Infinity;
+    let minCost = Infinity;
 
     for (const rep of reps) {
       const stats = repStats.get(rep.Rep_Name)!;
-      let score = 0.0; // Wait, we calculate score below
+      
+      // BASE COST = current total ARR this rep has
+      let cost = stats.totalARR;
 
-      // FACTOR 1: ARR Deviation (normalized to 0-1 scale)
-      const projectedARR = stats.currentARR + account.ARR;
-      const arrDev = Math.abs(projectedARR - targetARR);
-      // Worst case: one rep gets 2x target, or gets 0. So max possible deviation is targetARR
-      const maxPossibleDeviation = targetARR; 
-      // arrScore is 1.0 (perfect) to 0.0 (very unbalanced)
-      let arrScore = 1.0 - (arrDev / maxPossibleDeviation);
-      arrScore = Math.max(0.0, Math.min(1.0, arrScore));
-
-      // FACTOR 2: Risk Balance (normalized to 0-1 scale)
-      const currentRiskPct = stats.count > 0 ? stats.highRiskCount / stats.count : 0.0;
+      // ADJUSTMENT for risk balance
+      const currentCount = stats.count;
+      
+      const currentRiskPct = currentCount > 0 ? stats.highRiskCount / currentCount : 0.0;
       const isHighRisk = account.Risk_Score > 70;
-      const targetRiskPct = 0.35; // Target: 35% high-risk accounts
 
-      let projectedRiskPct: number;
-      if (isHighRisk) {
-        projectedRiskPct = (stats.highRiskCount + 1) / (stats.count + 1);
-      } else {
-        projectedRiskPct = stats.highRiskCount / (stats.count + 1);
+      // Add penalty/bonus based on risk
+      if (isHighRisk && currentRiskPct > 0.45) {
+        cost += 100000; // Penalty (makes rep less attractive)
+      } else if (isHighRisk && currentRiskPct < 0.25) {
+        cost -= 50000; // Bonus (makes rep more attractive)
       }
 
-      const riskDev = Math.abs(projectedRiskPct - targetRiskPct);
-      let riskScore = 1.0 - (riskDev / 0.35); // Normalize: 0.0 to 1.0
-      riskScore = Math.max(0.0, Math.min(1.0, riskScore));
-
-      // WEIGHTED COMBINATION
-      // 80% ARR balance (primary), 20% risk balance (secondary)
-      const finalScore = (arrScore * 0.80) + (riskScore * 0.20);
-
-      if (finalScore > maxScore) {
-        maxScore = finalScore;
+      if (cost < minCost) {
+        minCost = cost;
         bestRepName = rep.Rep_Name;
       }
     }
 
     // Assign
     const bestRepStats = repStats.get(bestRepName)!;
-    bestRepStats.currentARR += account.ARR;
+    bestRepStats.totalARR += account.ARR;
+    bestRepStats.accounts.push(account);
     bestRepStats.count++;
     if (account.Risk_Score > 70) bestRepStats.highRiskCount++;
 
@@ -166,46 +151,40 @@ function arrRiskBalance(accounts: Account[], reps: Rep[]): Account[] {
 function arrGeographyBalance(accounts: Account[], reps: Rep[]): Account[] {
   const sortedAccounts = [...accounts].sort((a, b) => b.ARR - a.ARR);
   
-  const totalARR = accounts.reduce((sum, a) => sum + a.ARR, 0);
-  const targetARR = totalARR / reps.length;
-
   const repStats = new Map(reps.map(r => [r.Rep_Name, {
     ...r,
-    currentARR: 0,
+    totalARR: 0,
+    accounts: [] as Account[],
     count: 0,
     sameStateCount: 0
   }]));
 
   return sortedAccounts.map(account => {
     let bestRepName = reps[0].Rep_Name;
-    let maxScore = -Infinity;
+    let minCost = Infinity;
 
     for (const rep of reps) {
       const stats = repStats.get(rep.Rep_Name)!;
       
-      // FACTOR 1: ARR Balance (normalized 0-1)
-      const projectedARR = stats.currentARR + account.ARR;
-      const arrDev = Math.abs(projectedARR - targetARR);
-      const maxPossibleDeviation = targetARR;
-      let arrScore = 1.0 - (arrDev / maxPossibleDeviation);
-      arrScore = Math.max(0.0, Math.min(1.0, arrScore));
+      // BASE COST = current total ARR this rep has
+      let cost = stats.totalARR;
 
-      // FACTOR 2: Geographic Match (binary: 0 or 1)
-      const geoScore = account.Location === rep.Location ? 1.0 : 0.0;
+      // ADJUSTMENT for geography
+      // If account is in same state as rep, reduce cost (make more attractive)
+      if (account.Location === rep.Location) {
+        cost -= 150000; // Subtract 150K (this is a bonus)
+      }
 
-      // WEIGHTED COMBINATION
-      // 70% ARR balance (primary), 30% geography (secondary)
-      const finalScore = (arrScore * 0.70) + (geoScore * 0.30);
-
-      if (finalScore > maxScore) {
-        maxScore = finalScore;
+      if (cost < minCost) {
+        minCost = cost;
         bestRepName = rep.Rep_Name;
       }
     }
 
     // Assign
     const bestRepStats = repStats.get(bestRepName)!;
-    bestRepStats.currentARR += account.ARR;
+    bestRepStats.totalARR += account.ARR;
+    bestRepStats.accounts.push(account);
     bestRepStats.count++;
     if (account.Location === bestRepStats.Location) bestRepStats.sameStateCount++;
 
@@ -217,13 +196,13 @@ function arrGeographyBalance(accounts: Account[], reps: Rep[]): Account[] {
 function smartMultiFactor(accounts: Account[], reps: Rep[]): Account[] {
   const sortedAccounts = [...accounts].sort((a, b) => b.ARR - a.ARR);
   
-  const totalARR = accounts.reduce((sum, a) => sum + a.ARR, 0);
-  const targetARR = totalARR / reps.length;
+  // Calculate target account count per rep
   const targetCount = accounts.length / reps.length;
 
   const repStats = new Map(reps.map(r => [r.Rep_Name, {
     ...r,
-    currentARR: 0,
+    totalARR: 0,
+    accounts: [] as Account[],
     count: 0,
     highRiskCount: 0,
     sameStateCount: 0
@@ -231,56 +210,50 @@ function smartMultiFactor(accounts: Account[], reps: Rep[]): Account[] {
 
   return sortedAccounts.map(account => {
     let bestRepName = reps[0].Rep_Name;
-    let maxScore = -Infinity;
+    let minCost = Infinity;
 
     for (const rep of reps) {
       const stats = repStats.get(rep.Rep_Name)!;
       
-      // FACTOR 1: ARR Balance (normalized 0-1)
-      const projectedARR = stats.currentARR + account.ARR;
-      const arrDev = Math.abs(projectedARR - targetARR);
-      let arrScore = 1.0 - (arrDev / targetARR);
-      arrScore = Math.max(0.0, Math.min(1.0, arrScore));
+      // BASE COST = current total ARR this rep has
+      let cost = stats.totalARR;
 
-      // FACTOR 2: Workload Balance (normalized 0-1)
-      const projectedCount = stats.count + 1;
-      const countDev = Math.abs(projectedCount - targetCount);
-      let countScore = 1.0 - (countDev / targetCount);
-      countScore = Math.max(0.0, Math.min(1.0, countScore));
-
-      // FACTOR 3: Geographic Match (binary 0 or 1)
-      const geoScore = account.Location === rep.Location ? 1.0 : 0.0;
-
-      // FACTOR 4: Risk Balance (normalized 0-1)
-      const isHighRisk = account.Risk_Score > 70;
-      let projectedRiskPct: number;
-      if (isHighRisk) {
-        projectedRiskPct = (stats.highRiskCount + 1) / projectedCount;
-      } else {
-        projectedRiskPct = stats.highRiskCount / projectedCount;
+      // ADJUSTMENT 1: Workload balance (account count)
+      if (stats.count > targetCount * 1.1) {
+        cost += 80000; // Penalty if rep has too many accounts
       }
-      
-      const targetRisk = 0.35;
-      const riskDev = Math.abs(projectedRiskPct - targetRisk);
-      let riskScore = 1.0 - (riskDev / 0.35);
-      riskScore = Math.max(0.0, Math.min(1.0, riskScore));
 
-      // WEIGHTED COMBINATION
-      // 50% ARR, 20% workload, 20% geography, 10% risk
-      const finalScore = (arrScore * 0.50) + (countScore * 0.20) + (geoScore * 0.20) + (riskScore * 0.10);
+      // ADJUSTMENT 2: Geography
+      if (account.Location === rep.Location) {
+        cost -= 120000; // Bonus for same state
+      }
 
-      if (finalScore > maxScore) {
-        maxScore = finalScore;
+      // ADJUSTMENT 3: Risk balance
+      const currentCount = stats.count;
+      if (currentCount > 0) {
+        const currentRiskPct = stats.highRiskCount / currentCount;
+        const isHighRisk = account.Risk_Score > 70;
+
+        if (isHighRisk && currentRiskPct > 0.45) {
+          cost += 60000; // Penalty if too many high-risk already
+        } else if (isHighRisk && currentRiskPct < 0.25) {
+          cost -= 40000; // Bonus if too few high-risk
+        }
+      }
+
+      if (cost < minCost) {
+        minCost = cost;
         bestRepName = rep.Rep_Name;
       }
     }
 
     // Assign
     const bestRepStats = repStats.get(bestRepName)!;
-    bestRepStats.currentARR += account.ARR;
+    bestRepStats.totalARR += account.ARR;
+    bestRepStats.accounts.push(account);
     bestRepStats.count++;
     if (account.Risk_Score > 70) bestRepStats.highRiskCount++;
-    if (account.Location === rep.Location) bestRepStats.sameStateCount++; // Fix: check against Rep location from loop context if needed, but here we found bestRep. Location is on rep object, we should preserve it in stats map or access via closure. The initial Map contains Rep spread so it has Location.
+    if (account.Location === bestRepStats.Location) bestRepStats.sameStateCount++;
 
     return { ...account, Assigned_Rep: bestRepName };
   });

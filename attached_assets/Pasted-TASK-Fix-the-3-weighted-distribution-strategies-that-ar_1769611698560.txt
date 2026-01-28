@@ -1,0 +1,289 @@
+TASK: Fix the 3 weighted distribution strategies that are currently broken.
+
+CURRENT PROBLEM:
+When I select "ARR + Risk Balance", "ARR + Geographic Clustering", or 
+"Smart Multi-Factor", one rep gets ALL accounts and others get 0.
+
+ROOT CAUSE:
+The cost calculation is wrong. It's using deviation from target which creates 
+a runaway effect where the same rep keeps winning.
+
+SOLUTION:
+Use current total ARR as base cost (like greedy algorithm), then add 
+small adjustments for risk/geography.
+
+═══════════════════════════════════════════════════════════════════════
+STEP 1: FIND THE arr_risk_balance() FUNCTION
+═══════════════════════════════════════════════════════════════════════
+
+Look for this function in your code. DELETE the entire function.
+
+Replace it with this EXACT code:
+```python
+def arr_risk_balance(accounts_list, reps_list):
+    """Balance ARR + Risk exposure"""
+    # Sort accounts by ARR (biggest first)
+    sorted_accounts = sorted(accounts_list, key=lambda x: x['ARR'], reverse=True)
+    
+    # Initialize tracking for each rep
+    rep_stats = {
+        rep: {
+            'total_arr': 0,
+            'accounts': [],
+            'count': 0,
+            'high_risk_count': 0
+        } 
+        for rep in reps_list
+    }
+    
+    # Assign each account one by one
+    for account in sorted_accounts:
+        # Calculate cost for assigning this account to each rep
+        costs = {}
+        
+        for rep in reps_list:
+            # BASE COST = current total ARR this rep has
+            # (This is the KEY - it's what makes balancing work)
+            cost = rep_stats[rep]['total_arr']
+            
+            # ADJUSTMENT for risk balance
+            current_count = rep_stats[rep]['count']
+            
+            # Calculate current risk percentage for this rep
+            if current_count > 0:
+                current_risk_pct = rep_stats[rep]['high_risk_count'] / current_count
+            else:
+                current_risk_pct = 0.0
+            
+            # Is this account high-risk? (Risk_Score > 70)
+            is_high_risk = account['Risk_Score'] > 70
+            
+            # Add penalty/bonus based on risk
+            if is_high_risk and current_risk_pct > 0.45:
+                # This rep already has too many high-risk accounts
+                cost += 100000  # Add penalty (makes this rep less attractive)
+            elif is_high_risk and current_risk_pct < 0.25:
+                # This rep has too few high-risk accounts
+                cost -= 50000  # Subtract bonus (makes this rep more attractive)
+            
+            # Save this cost
+            costs[rep] = cost
+        
+        # Pick the rep with MINIMUM cost
+        best_rep = min(costs.keys(), key=lambda r: costs[r])
+        
+        # Assign this account to the best rep
+        rep_stats[best_rep]['total_arr'] += account['ARR']
+        rep_stats[best_rep]['accounts'].append(account)
+        rep_stats[best_rep]['count'] += 1
+        if account['Risk_Score'] > 70:
+            rep_stats[best_rep]['high_risk_count'] += 1
+    
+    return rep_stats
+```
+
+═══════════════════════════════════════════════════════════════════════
+STEP 2: FIND THE arr_geography_balance() FUNCTION
+═══════════════════════════════════════════════════════════════════════
+
+Look for this function in your code. DELETE the entire function.
+
+Replace it with this EXACT code:
+```python
+def arr_geography_balance(accounts_list, reps_list, rep_locations):
+    """Balance ARR + Geographic proximity"""
+    # Sort accounts by ARR (biggest first)
+    sorted_accounts = sorted(accounts_list, key=lambda x: x['ARR'], reverse=True)
+    
+    # Initialize tracking for each rep
+    rep_stats = {
+        rep: {
+            'total_arr': 0,
+            'accounts': [],
+            'count': 0,
+            'same_state_count': 0,
+            'location': rep_locations[rep]
+        } 
+        for rep in reps_list
+    }
+    
+    # Assign each account one by one
+    for account in sorted_accounts:
+        # Calculate cost for assigning this account to each rep
+        costs = {}
+        
+        for rep in reps_list:
+            # BASE COST = current total ARR this rep has
+            cost = rep_stats[rep]['total_arr']
+            
+            # ADJUSTMENT for geography
+            # If account is in same state as rep, reduce cost (make more attractive)
+            if account['Location'] == rep_stats[rep]['location']:
+                cost -= 150000  # Subtract 150K (this is a bonus)
+            
+            # Save this cost
+            costs[rep] = cost
+        
+        # Pick the rep with MINIMUM cost
+        best_rep = min(costs.keys(), key=lambda r: costs[r])
+        
+        # Assign this account to the best rep
+        rep_stats[best_rep]['total_arr'] += account['ARR']
+        rep_stats[best_rep]['accounts'].append(account)
+        rep_stats[best_rep]['count'] += 1
+        if account['Location'] == rep_stats[best_rep]['location']:
+            rep_stats[best_rep]['same_state_count'] += 1
+    
+    return rep_stats
+```
+
+═══════════════════════════════════════════════════════════════════════
+STEP 3: FIND THE smart_multifactor() FUNCTION
+═══════════════════════════════════════════════════════════════════════
+
+Look for this function in your code. DELETE the entire function.
+
+Replace it with this EXACT code:
+```python
+def smart_multifactor(accounts_list, reps_list, rep_locations):
+    """Balance ARR + Risk + Geography + Workload"""
+    # Sort accounts by ARR (biggest first)
+    sorted_accounts = sorted(accounts_list, key=lambda x: x['ARR'], reverse=True)
+    
+    # Calculate target account count per rep
+    target_count = len(accounts_list) / len(reps_list)
+    
+    # Initialize tracking for each rep
+    rep_stats = {
+        rep: {
+            'total_arr': 0,
+            'accounts': [],
+            'count': 0,
+            'high_risk_count': 0,
+            'same_state_count': 0,
+            'location': rep_locations[rep]
+        } 
+        for rep in reps_list
+    }
+    
+    # Assign each account one by one
+    for account in sorted_accounts:
+        # Calculate cost for assigning this account to each rep
+        costs = {}
+        
+        for rep in reps_list:
+            # BASE COST = current total ARR this rep has
+            cost = rep_stats[rep]['total_arr']
+            
+            # ADJUSTMENT 1: Workload balance (account count)
+            if rep_stats[rep]['count'] > target_count * 1.1:
+                cost += 80000  # Penalty if rep has too many accounts
+            
+            # ADJUSTMENT 2: Geography
+            if account['Location'] == rep_stats[rep]['location']:
+                cost -= 120000  # Bonus for same state
+            
+            # ADJUSTMENT 3: Risk balance
+            current_count = rep_stats[rep]['count']
+            if current_count > 0:
+                current_risk_pct = rep_stats[rep]['high_risk_count'] / current_count
+                is_high_risk = account['Risk_Score'] > 70
+                
+                if is_high_risk and current_risk_pct > 0.45:
+                    cost += 60000  # Penalty if too many high-risk already
+                elif is_high_risk and current_risk_pct < 0.25:
+                    cost -= 40000  # Bonus if too few high-risk
+            
+            # Save this cost
+            costs[rep] = cost
+        
+        # Pick the rep with MINIMUM cost
+        best_rep = min(costs.keys(), key=lambda r: costs[r])
+        
+        # Assign this account to the best rep
+        rep_stats[best_rep]['total_arr'] += account['ARR']
+        rep_stats[best_rep]['accounts'].append(account)
+        rep_stats[best_rep]['count'] += 1
+        if account['Risk_Score'] > 70:
+            rep_stats[best_rep]['high_risk_count'] += 1
+        if account['Location'] == rep_stats[best_rep]['location']:
+            rep_stats[best_rep]['same_state_count'] += 1
+    
+    return rep_stats
+```
+
+═══════════════════════════════════════════════════════════════════════
+STEP 4: VERIFY THE LOGIC IS CALLED CORRECTLY
+═══════════════════════════════════════════════════════════════════════
+
+Make sure in your main code where you call these functions, you have:
+```python
+# Get rep locations dictionary
+rep_locations = dict(zip(reps_df['Rep_Name'], reps_df['Location']))
+
+# When user selects "ARR + Risk Balance":
+if strategy == "ARR + Risk Balance":
+    ent_dist = arr_risk_balance(enterprise_accounts, enterprise_reps)
+    mid_dist = arr_risk_balance(midmarket_accounts, midmarket_reps)
+
+# When user selects "ARR + Geographic Clustering":
+elif strategy == "ARR + Geographic Clustering":
+    ent_dist = arr_geography_balance(enterprise_accounts, enterprise_reps, rep_locations)
+    mid_dist = arr_geography_balance(midmarket_accounts, midmarket_reps, rep_locations)
+
+# When user selects "Smart Multi-Factor":
+elif strategy == "Smart Multi-Factor":
+    ent_dist = smart_multifactor(enterprise_accounts, enterprise_reps, rep_locations)
+    mid_dist = smart_multifactor(midmarket_accounts, midmarket_reps, rep_locations)
+```
+
+═══════════════════════════════════════════════════════════════════════
+CRITICAL TESTING
+═══════════════════════════════════════════════════════════════════════
+
+After making these changes, test at threshold 100,000:
+
+REQUIRED RESULTS:
+✓ All 4 Enterprise reps must have 55-70 accounts each (NO ZEROS!)
+✓ All 6 Mid-Market reps must have 35-50 accounts each (NO ZEROS!)
+✓ ARR Std Dev for Enterprise should be under $30,000
+✓ When using Geography strategy, Same-State % should increase to 25-35%
+✓ When using Risk strategy, all reps should have 25-45% high-risk accounts
+
+If any rep has 0 accounts after this change, the function was not 
+replaced correctly. Double-check you copied the EXACT code above.
+
+═══════════════════════════════════════════════════════════════════════
+WHAT MAKES THIS WORK
+═══════════════════════════════════════════════════════════════════════
+
+KEY CONCEPT:
+cost = current_total + adjustments
+
+NOT:
+cost = abs(projected - target)  ← This was the bug!
+
+Example walkthrough:
+- Account 1 ($1M): Mickey=$0, Goofy=$0 → Mickey wins
+- Account 2 ($900K): Mickey=$1M, Goofy=$0 → Goofy wins (has less!)
+- Account 3 ($800K): Mickey=$1M, Goofy=$900K → Goofy wins
+- Account 4 ($700K): Mickey=$1M, Goofy=$1.7M → Mickey wins
+
+This naturally balances because as each rep gets accounts, their cost 
+(current total) goes up, making them less likely to get the next account.
+
+The adjustments (-150K for geography, +100K for risk) are SMALL compared 
+to typical account ARRs, so they act as tiebreakers without breaking 
+the core balancing logic.
+
+═══════════════════════════════════════════════════════════════════════
+MAKE THESE EXACT CHANGES NOW
+═══════════════════════════════════════════════════════════════════════
+
+1. Find arr_risk_balance() → Delete it → Paste new version
+2. Find arr_geography_balance() → Delete it → Paste new version  
+3. Find smart_multifactor() → Delete it → Paste new version
+4. Test with threshold 100,000
+5. Verify all reps get accounts
+
+Do this now.
