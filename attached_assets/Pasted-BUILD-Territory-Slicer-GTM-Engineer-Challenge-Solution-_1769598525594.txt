@@ -1,0 +1,71 @@
+BUILD: Territory Slicer - GTM Engineer Challenge Solution
+
+═══════════════════════════════════════════════════════════════════════
+THE CHALLENGE
+═══════════════════════════════════════════════════════════════════════
+
+Build an interactive Territory Slicer tool that helps restructure sales teams
+from "Generalist" to segmented (Enterprise vs Mid-Market) by allowing dynamic
+threshold adjustment to find the "sweet spot" for account distribution.
+
+═══════════════════════════════════════════════════════════════════════
+DATA FILES (I will upload these)
+═══════════════════════════════════════════════════════════════════════
+
+1. GTM-Engineer_Challenge_-_Reps.csv
+   Contains 10 sales reps:
+   - 4 Enterprise reps: Mickey Mouse (GA), Goofy (NC), Pluto (CA), Daisy Duck (OH)
+   - 6 Mid-Market reps: Minnie Mouse (NY), Donald Duck (TX), Ariel (MI), 
+                        Simba (PA), Elsa (FL), Moana (IL)
+
+2. GTM-Engineer_Challenge_-_Accounts.csv
+   Contains 500 accounts with columns:
+   - Account_ID
+   - Account_Name
+   - Current_Rep (current assignment)
+   - ARR (Annual Recurring Revenue - THIS is what we balance!)
+   - Location (state)
+   - Num_Employees (THIS is the threshold variable!)
+   - Num_Marketers
+   - Risk_Score
+
+═══════════════════════════════════════════════════════════════════════
+REQUIREMENT 1: INTERACTIVE THRESHOLD SLIDER
+═══════════════════════════════════════════════════════════════════════
+
+Create a slider in the sidebar:
+- Label: "Employee Count Threshold"
+- Range: 500 to 200,000 employees
+- Default: 100,000 employees
+- Step size: 5,000
+
+Display the current threshold value prominently: "Current Threshold: 100,000 employees"
+
+═══════════════════════════════════════════════════════════════════════
+REQUIREMENT 2: AUTOMATIC SEGMENTATION
+═══════════════════════════════════════════════════════════════════════
+
+Split accounts based on the threshold:
+
+IF account['Num_Employees'] >= threshold:
+    → Tag as "Enterprise"
+    → Assign to Enterprise rep pool
+ELSE:
+    → Tag as "Mid-Market"
+    → Assign to Mid-Market rep pool
+
+Example:
+- Threshold = 100,000
+- Apple (190,538 employees) → Enterprise
+- Walmart (54,503 employees) → Mid-Market
+
+═══════════════════════════════════════════════════════════════════════
+REQUIREMENT 3: RE-ASSIGNMENT ENGINE (MOST CRITICAL!)
+═══════════════════════════════════════════════════════════════════════
+
+Use GREEDY BIN-PACKING algorithm to distribute accounts EQUITABLY by ARR:
+
+EQUITABLE = Balancing ARR (revenue potential), NOT just account count
+
+Algorithm (MUST implement this exactly):
+```python
