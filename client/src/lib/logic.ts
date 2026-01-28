@@ -27,6 +27,9 @@ export interface RepStats {
   totalARR: number;
   location: string;
   segment: string;
+  // Additional metrics
+  highRiskCount: number;
+  sameStateCount: number;
 }
 
 export function useData() {
@@ -72,7 +75,195 @@ export function segmentAccounts(accounts: Account[], threshold: number): Account
   }));
 }
 
-export function distributeAccounts(accounts: Account[], reps: Rep[]): Account[] {
+export type DistributionStrategy = 
+  | "Pure ARR Balance" 
+  | "ARR + Risk Balance" 
+  | "ARR + Geographic Clustering" 
+  | "Smart Multi-Factor";
+
+// Base logic for Pure ARR (Greedy Bin Packing)
+function greedyBinPacking(accounts: Account[], reps: Rep[]): Account[] {
+  const sortedAccounts = [...accounts].sort((a, b) => b.ARR - a.ARR);
+  const repHeaps = reps.map(r => ({ ...r, currentARR: 0 }));
+
+  return sortedAccounts.map(acc => {
+    repHeaps.sort((a, b) => a.currentARR - b.currentARR);
+    const targetRep = repHeaps[0];
+    targetRep.currentARR += acc.ARR;
+    return { ...acc, Assigned_Rep: targetRep.Rep_Name };
+  });
+}
+
+// Strategy 2: ARR + Risk Balance
+function arrRiskBalance(accounts: Account[], reps: Rep[]): Account[] {
+  const sortedAccounts = [...accounts].sort((a, b) => b.ARR - a.ARR);
+  
+  const totalARR = accounts.reduce((sum, a) => sum + a.ARR, 0);
+  const targetARR = totalARR / reps.length;
+
+  // Initialize tracking
+  const repStats = new Map(reps.map(r => [r.Rep_Name, {
+    ...r,
+    currentARR: 0,
+    count: 0,
+    highRiskCount: 0
+  }]));
+
+  return sortedAccounts.map(account => {
+    let bestRepName = reps[0].Rep_Name;
+    let maxScore = -Infinity;
+
+    for (const rep of reps) {
+      const stats = repStats.get(rep.Rep_Name)!;
+      let score = 0.0;
+
+      // ARR deviation penalty (70%)
+      const projectedARR = stats.currentARR + account.ARR;
+      const arrDev = Math.abs(projectedARR - targetARR);
+      score -= (arrDev / 1000) * 0.70;
+
+      // Risk balance (30%)
+      const riskPct = stats.count > 0 ? stats.highRiskCount / stats.count : 0;
+      const isHighRisk = account.Risk_Score > 70;
+
+      if (isHighRisk) {
+        if (riskPct < 0.30) score += 10.0 * 0.30;
+        else if (riskPct > 0.45) score -= 10.0 * 0.30;
+      } else {
+        if (riskPct > 0.45) score += 10.0 * 0.30;
+        else if (riskPct < 0.30) score -= 10.0 * 0.30;
+      }
+
+      if (score > maxScore) {
+        maxScore = score;
+        bestRepName = rep.Rep_Name;
+      }
+    }
+
+    // Assign
+    const bestRepStats = repStats.get(bestRepName)!;
+    bestRepStats.currentARR += account.ARR;
+    bestRepStats.count++;
+    if (account.Risk_Score > 70) bestRepStats.highRiskCount++;
+
+    return { ...account, Assigned_Rep: bestRepName };
+  });
+}
+
+// Strategy 3: ARR + Geography Balance
+function arrGeographyBalance(accounts: Account[], reps: Rep[]): Account[] {
+  const sortedAccounts = [...accounts].sort((a, b) => b.ARR - a.ARR);
+  
+  const totalARR = accounts.reduce((sum, a) => sum + a.ARR, 0);
+  const targetARR = totalARR / reps.length;
+
+  const repStats = new Map(reps.map(r => [r.Rep_Name, {
+    ...r,
+    currentARR: 0
+  }]));
+
+  return sortedAccounts.map(account => {
+    let bestRepName = reps[0].Rep_Name;
+    let maxScore = -Infinity;
+
+    for (const rep of reps) {
+      const stats = repStats.get(rep.Rep_Name)!;
+      let score = 0.0;
+
+      // ARR deviation (60%)
+      const projectedARR = stats.currentARR + account.ARR;
+      const arrDev = Math.abs(projectedARR - targetARR);
+      score -= (arrDev / 1000) * 0.60;
+
+      // Geography bonus (40%)
+      if (account.Location === rep.Location) {
+        score += 20.0 * 0.40;
+      }
+
+      if (score > maxScore) {
+        maxScore = score;
+        bestRepName = rep.Rep_Name;
+      }
+    }
+
+    // Assign
+    const bestRepStats = repStats.get(bestRepName)!;
+    bestRepStats.currentARR += account.ARR;
+
+    return { ...account, Assigned_Rep: bestRepName };
+  });
+}
+
+// Strategy 4: Smart Multi-Factor
+function smartMultiFactor(accounts: Account[], reps: Rep[]): Account[] {
+  const sortedAccounts = [...accounts].sort((a, b) => b.ARR - a.ARR);
+  
+  const totalARR = accounts.reduce((sum, a) => sum + a.ARR, 0);
+  const targetARR = totalARR / reps.length;
+  const targetCount = accounts.length / reps.length;
+
+  const repStats = new Map(reps.map(r => [r.Rep_Name, {
+    ...r,
+    currentARR: 0,
+    count: 0,
+    highRiskCount: 0
+  }]));
+
+  return sortedAccounts.map(account => {
+    let bestRepName = reps[0].Rep_Name;
+    let maxScore = -Infinity;
+
+    for (const rep of reps) {
+      const stats = repStats.get(rep.Rep_Name)!;
+      let score = 0.0;
+
+      // ARR Balance (40%)
+      const projectedARR = stats.currentARR + account.ARR;
+      score -= (Math.abs(projectedARR - targetARR) / 1000) * 0.40;
+
+      // Workload Balance (25%)
+      const projectedCount = stats.count + 1;
+      score -= Math.abs(projectedCount - targetCount) * 0.25;
+
+      // Geography (20%)
+      if (account.Location === rep.Location) {
+        score += 15.0 * 0.20;
+      }
+
+      // Risk Balance (15%)
+      const riskPct = stats.count > 0 ? stats.highRiskCount / stats.count : 0;
+      const isHighRisk = account.Risk_Score > 70;
+
+      if (isHighRisk) {
+        if (riskPct < 0.30) score += 8.0 * 0.15;
+        else if (riskPct > 0.45) score -= 8.0 * 0.15;
+      } else {
+        if (riskPct > 0.45) score += 8.0 * 0.15;
+        else if (riskPct < 0.30) score -= 8.0 * 0.15;
+      }
+
+      if (score > maxScore) {
+        maxScore = score;
+        bestRepName = rep.Rep_Name;
+      }
+    }
+
+    // Assign
+    const bestRepStats = repStats.get(bestRepName)!;
+    bestRepStats.currentARR += account.ARR;
+    bestRepStats.count++;
+    if (account.Risk_Score > 70) bestRepStats.highRiskCount++;
+
+    return { ...account, Assigned_Rep: bestRepName };
+  });
+}
+
+
+export function distributeAccounts(
+  accounts: Account[], 
+  reps: Rep[], 
+  strategy: DistributionStrategy = "Pure ARR Balance"
+): Account[] {
   // 1. Separate pools
   const entAccounts = accounts.filter(a => a.Segment === "Enterprise");
   const mmAccounts = accounts.filter(a => a.Segment === "Mid Market");
@@ -80,42 +271,31 @@ export function distributeAccounts(accounts: Account[], reps: Rep[]): Account[] 
   const entReps = reps.filter(r => r.Segment === "Enterprise");
   const mmReps = reps.filter(r => r.Segment === "Mid Market");
 
-  // 2. Greedy Bin Packing for Enterprise
-  // Sort accounts by ARR descending (Greedy approach)
-  const sortedEntAccounts = [...entAccounts].sort((a, b) => b.ARR - a.ARR);
-  
-  // Initialize heaps for reps (tracking total ARR)
-  const entRepHeaps = entReps.map(r => ({ ...r, currentARR: 0, accountCount: 0 }));
+  let assignedEnt: Account[];
+  let assignedMm: Account[];
 
-  const assignedEntAccounts = sortedEntAccounts.map(acc => {
-    // Find rep with lowest current ARR
-    entRepHeaps.sort((a, b) => a.currentARR - b.currentARR);
-    const targetRep = entRepHeaps[0];
-    
-    // Assign
-    targetRep.currentARR += acc.ARR;
-    targetRep.accountCount++;
-    
-    return { ...acc, Assigned_Rep: targetRep.Rep_Name };
-  });
+  // 2. Route to strategy
+  switch (strategy) {
+    case "ARR + Risk Balance":
+      assignedEnt = arrRiskBalance(entAccounts, entReps);
+      assignedMm = arrRiskBalance(mmAccounts, mmReps);
+      break;
+    case "ARR + Geographic Clustering":
+      assignedEnt = arrGeographyBalance(entAccounts, entReps);
+      assignedMm = arrGeographyBalance(mmAccounts, mmReps);
+      break;
+    case "Smart Multi-Factor":
+      assignedEnt = smartMultiFactor(entAccounts, entReps);
+      assignedMm = smartMultiFactor(mmAccounts, mmReps);
+      break;
+    case "Pure ARR Balance":
+    default:
+      assignedEnt = greedyBinPacking(entAccounts, entReps);
+      assignedMm = greedyBinPacking(mmAccounts, mmReps);
+      break;
+  }
 
-  // 3. Greedy Bin Packing for Mid-Market
-  const sortedMmAccounts = [...mmAccounts].sort((a, b) => b.ARR - a.ARR);
-  const mmRepHeaps = mmReps.map(r => ({ ...r, currentARR: 0, accountCount: 0 }));
-
-  const assignedMmAccounts = sortedMmAccounts.map(acc => {
-     // Find rep with lowest current ARR
-     mmRepHeaps.sort((a, b) => a.currentARR - b.currentARR);
-     const targetRep = mmRepHeaps[0];
-     
-     // Assign
-     targetRep.currentARR += acc.ARR;
-     targetRep.accountCount++;
-     
-     return { ...acc, Assigned_Rep: targetRep.Rep_Name };
-  });
-
-  return [...assignedEntAccounts, ...assignedMmAccounts];
+  return [...assignedEnt, ...assignedMm];
 }
 
 export function calculateRepStats(accounts: Account[], reps: Rep[]): RepStats[] {
@@ -128,7 +308,9 @@ export function calculateRepStats(accounts: Account[], reps: Rep[]): RepStats[] 
       location: rep.Location,
       segment: rep.Segment,
       count: 0,
-      totalARR: 0
+      totalARR: 0,
+      highRiskCount: 0,
+      sameStateCount: 0
     });
   });
 
@@ -138,6 +320,8 @@ export function calculateRepStats(accounts: Account[], reps: Rep[]): RepStats[] 
       const stat = statsMap.get(acc.Assigned_Rep)!;
       stat.count++;
       stat.totalARR += acc.ARR;
+      if (acc.Risk_Score > 70) stat.highRiskCount++;
+      if (acc.Location === stat.location) stat.sameStateCount++;
     }
   });
 

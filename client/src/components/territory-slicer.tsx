@@ -2,8 +2,9 @@ import { useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useData, segmentAccounts, distributeAccounts, calculateRepStats } from "@/lib/logic";
-import { Loader2, TrendingUp, Users, DollarSign, Calculator } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useData, segmentAccounts, distributeAccounts, calculateRepStats, type DistributionStrategy } from "@/lib/logic";
+import { Loader2, TrendingUp, Users, Target, Info, MapPin, ShieldAlert, Scale, BrainCircuit } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,14 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
             <span className="text-muted-foreground">Accounts:</span>
             <span className="font-mono font-medium text-foreground">{data.count}</span>
           </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted-foreground">High Risk:</span>
+            <span className="font-mono font-medium text-destructive">{data.highRiskCount}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-muted-foreground">In-State:</span>
+            <span className="font-mono font-medium text-chart-4">{data.sameStateCount}</span>
+          </div>
         </div>
       </div>
     );
@@ -40,6 +49,7 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
 export function TerritorySlicer() {
   const { reps, accounts, loading } = useData();
   const [threshold, setThreshold] = useState([100000]); // Array for slider component
+  const [strategy, setStrategy] = useState<DistributionStrategy>("Pure ARR Balance");
 
   const processedData = useMemo(() => {
     if (loading || !reps.length || !accounts.length) return null;
@@ -48,7 +58,7 @@ export function TerritorySlicer() {
     const segmented = segmentAccounts(accounts, threshold[0]);
     
     // 2. Distribute
-    const distributed = distributeAccounts(segmented, reps);
+    const distributed = distributeAccounts(segmented, reps, strategy);
 
     // 3. Stats
     const stats = calculateRepStats(distributed, reps);
@@ -62,6 +72,18 @@ export function TerritorySlicer() {
     const entReps = stats.filter(r => r.segment === "Enterprise");
     const mmReps = stats.filter(r => r.segment === "Mid Market");
 
+    // Metrics for "Strategy Performance"
+    const entStats = stats.filter(r => r.segment === "Enterprise");
+    const arrStdDev = Math.sqrt(entStats.reduce((sq, n) => sq + Math.pow(n.totalARR - (entStats.reduce((sum, x) => sum + x.totalARR, 0) / entStats.length), 2), 0) / entStats.length);
+    const workloadRange = Math.max(...entStats.map(r => r.count)) - Math.min(...entStats.map(r => r.count));
+    const totalSameState = entStats.reduce((sum, r) => sum + r.sameStateCount, 0);
+    const totalEntAccounts = entStats.reduce((sum, r) => sum + r.count, 0);
+    const sameStatePct = totalEntAccounts > 0 ? (totalSameState / totalEntAccounts) * 100 : 0;
+    
+    // Risk Std Dev (approximate risk balance)
+    const riskPcts = entStats.map(r => r.count > 0 ? (r.highRiskCount / r.count) * 100 : 0);
+    const riskStdDev = Math.sqrt(riskPcts.reduce((sq, n) => sq + Math.pow(n - (riskPcts.reduce((a, b) => a + b, 0) / riskPcts.length), 2), 0) / riskPcts.length);
+
     return {
       stats,
       totalARR,
@@ -70,9 +92,15 @@ export function TerritorySlicer() {
       entARR: entAccounts.reduce((sum, a) => sum + a.ARR, 0),
       mmARR: mmAccounts.reduce((sum, a) => sum + a.ARR, 0),
       entReps,
-      mmReps
+      mmReps,
+      metrics: {
+        arrStdDev,
+        workloadRange,
+        sameStatePct,
+        riskStdDev
+      }
     };
-  }, [reps, accounts, threshold, loading]);
+  }, [reps, accounts, threshold, strategy, loading]);
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
@@ -101,7 +129,7 @@ export function TerritorySlicer() {
 
       {/* CONTROL PANEL & SUMMARY */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* SLIDER CARD */}
+        {/* CONFIG CARD */}
         <Card className="lg:col-span-1 border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-lg font-medium flex items-center gap-2">
@@ -110,6 +138,7 @@ export function TerritorySlicer() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* THRESHOLD SLIDER */}
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-muted-foreground">Employee Threshold</span>
@@ -128,6 +157,52 @@ export function TerritorySlicer() {
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>500</span>
                 <span>200,000</span>
+              </div>
+            </div>
+
+            <div className="h-px bg-border/50" />
+
+            {/* STRATEGY SELECTOR */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-muted-foreground">Distribution Strategy</label>
+              <Select value={strategy} onValueChange={(val: DistributionStrategy) => setStrategy(val)}>
+                <SelectTrigger className="w-full bg-background border-input">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pure ARR Balance">Pure ARR Balance</SelectItem>
+                  <SelectItem value="ARR + Risk Balance">ARR + Risk Balance</SelectItem>
+                  <SelectItem value="ARR + Geographic Clustering">ARR + Geographic Clustering</SelectItem>
+                  <SelectItem value="Smart Multi-Factor">Smart Multi-Factor</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Strategy Info Box */}
+              <div className="bg-muted/30 p-3 rounded-md border border-border/50 text-xs text-muted-foreground">
+                 {strategy === "Pure ARR Balance" && (
+                   <div className="flex gap-2">
+                     <Target className="w-4 h-4 text-chart-1 shrink-0" />
+                     <span><strong>Focus:</strong> Maximize revenue equity only. All reps get similar ARR targets.</span>
+                   </div>
+                 )}
+                 {strategy === "ARR + Risk Balance" && (
+                   <div className="flex gap-2">
+                     <ShieldAlert className="w-4 h-4 text-chart-5 shrink-0" />
+                     <span><strong>Focus:</strong> Balances revenue and risk exposure. Prevents one rep from getting all high-risk accounts.</span>
+                   </div>
+                 )}
+                 {strategy === "ARR + Geographic Clustering" && (
+                   <div className="flex gap-2">
+                     <MapPin className="w-4 h-4 text-chart-4 shrink-0" />
+                     <span><strong>Focus:</strong> Reduces travel costs by prioritizing accounts in the rep's home state.</span>
+                   </div>
+                 )}
+                 {strategy === "Smart Multi-Factor" && (
+                   <div className="flex gap-2">
+                     <BrainCircuit className="w-4 h-4 text-chart-3 shrink-0" />
+                     <span><strong>Focus:</strong> Complex balance of ARR, risk, geography, and workload equity.</span>
+                   </div>
+                 )}
               </div>
             </div>
 
@@ -150,49 +225,91 @@ export function TerritorySlicer() {
         </Card>
 
         {/* VISUALIZATION CARD */}
-        <Card className="lg:col-span-2 border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm">
-           <CardHeader>
-             <CardTitle className="text-lg font-medium flex items-center gap-2">
-               <TrendingUp className="w-5 h-5 text-chart-1" />
-               ARR Distribution Balance
-             </CardTitle>
-             <CardDescription>Visualizing revenue distribution across sales representatives</CardDescription>
-           </CardHeader>
-           <CardContent className="h-[300px]">
-             <ResponsiveContainer width="100%" height="100%">
-               <BarChart data={processedData.stats} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="hsl(var(--muted-foreground))" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false}
-                    interval={0}
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false}
-                    tickFormatter={(val) => `$${(val/1000000).toFixed(1)}M`}
-                  />
-                  <Tooltip 
-                    content={<CustomTooltip formatCurrency={formatCurrency} />}
-                    cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
-                  />
-                  <Bar dataKey="totalARR" radius={[4, 4, 0, 0]}>
-                    {processedData.stats.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.segment === "Enterprise" ? "hsl(var(--chart-2))" : "hsl(var(--chart-1))"} />
-                    ))}
-                  </Bar>
-               </BarChart>
-             </ResponsiveContainer>
-           </CardContent>
-        </Card>
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm h-[400px]">
+             <CardHeader>
+               <CardTitle className="text-lg font-medium flex items-center gap-2">
+                 <TrendingUp className="w-5 h-5 text-chart-1" />
+                 ARR Distribution Balance
+               </CardTitle>
+               <CardDescription>Visualizing revenue distribution across sales representatives</CardDescription>
+             </CardHeader>
+             <CardContent className="h-[300px]">
+               <ResponsiveContainer width="100%" height="100%">
+                 <BarChart data={processedData.stats} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false}
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false}
+                      tickFormatter={(val) => `$${(val/1000000).toFixed(1)}M`}
+                    />
+                    <Tooltip 
+                      content={<CustomTooltip formatCurrency={formatCurrency} />}
+                      cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                    />
+                    <Bar dataKey="totalARR" radius={[4, 4, 0, 0]}>
+                      {processedData.stats.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.segment === "Enterprise" ? "hsl(var(--chart-2))" : "hsl(var(--chart-1))"} />
+                      ))}
+                    </Bar>
+                 </BarChart>
+               </ResponsiveContainer>
+             </CardContent>
+          </Card>
+
+          {/* METRICS DASHBOARD (New Section) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                  <Scale className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase">ARR Std Dev (Ent)</span>
+                </div>
+                <div className="text-xl font-bold font-mono">{formatCurrency(processedData.metrics.arrStdDev)}</div>
+                <div className="text-[10px] text-chart-2 mt-1">Lower is better</div>
+             </div>
+             
+             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                  <Target className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase">Workload Range</span>
+                </div>
+                <div className="text-xl font-bold font-mono">{processedData.metrics.workloadRange}</div>
+                <div className="text-[10px] text-chart-2 mt-1">Acct diff (Lower is better)</div>
+             </div>
+
+             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase">Same-State %</span>
+                </div>
+                <div className="text-xl font-bold font-mono">{processedData.metrics.sameStatePct.toFixed(1)}%</div>
+                <div className="text-[10px] text-chart-4 mt-1">Higher is better</div>
+             </div>
+
+             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                  <ShieldAlert className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase">Risk Balance</span>
+                </div>
+                <div className="text-xl font-bold font-mono">{processedData.metrics.riskStdDev.toFixed(1)}%</div>
+                <div className="text-[10px] text-chart-5 mt-1">Std Dev (Lower is better)</div>
+             </div>
+          </div>
+
+        </div>
       </div>
 
       {/* DETAILED STATS - SPLIT VIEW */}

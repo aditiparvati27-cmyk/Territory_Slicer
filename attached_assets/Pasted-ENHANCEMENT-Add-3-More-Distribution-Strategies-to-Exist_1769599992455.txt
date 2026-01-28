@@ -1,0 +1,367 @@
+ENHANCEMENT: Add 3 More Distribution Strategies to Existing App
+
+═══════════════════════════════════════════════════════════════════════
+WHAT TO KEEP (Don't Change)
+═══════════════════════════════════════════════════════════════════════
+
+✓ Keep the existing threshold slider
+✓ Keep the existing charts
+✓ Keep the existing ARR-only algorithm (rename it to "Pure ARR Balance")
+✓ Keep the download functionality
+
+═══════════════════════════════════════════════════════════════════════
+WHAT TO ADD
+═══════════════════════════════════════════════════════════════════════
+
+ADD 1: Strategy Selector Dropdown in Sidebar
+
+Add this BELOW the threshold slider:
+```python
+st.sidebar.divider()
+st.sidebar.subheader("Distribution Strategy")
+
+strategy = st.sidebar.selectbox(
+    "Choose how to assign accounts to reps:",
+    [
+        "Pure ARR Balance",
+        "ARR + Risk Balance", 
+        "ARR + Geographic Clustering",
+        "Smart Multi-Factor"
+    ],
+    help="""
+    • Pure ARR: Maximize revenue equity only
+    • ARR + Risk: Balance revenue and risk exposure
+    • ARR + Geography: Minimize travel costs
+    • Smart Multi-Factor: Balance everything
+    """
+)
+
+# Show explanation of selected strategy
+if strategy == "Pure ARR Balance":
+    st.sidebar.info("🎯 Focuses solely on revenue equity. All reps get similar ARR.")
+elif strategy == "ARR + Risk Balance":
+    st.sidebar.info("⚖️ Balances revenue AND risk. Prevents one rep from getting all high-risk accounts.")
+elif strategy == "ARR + Geographic Clustering":
+    st.sidebar.info("📍 Reduces travel costs. Gives reps more accounts in their home state.")
+elif strategy == "Smart Multi-Factor":
+    st.sidebar.info("🧠 Balances ARR, risk, geography, AND workload for overall fairness.")
+```
+
+ADD 2: Three New Distribution Functions
+
+Add these functions to your code (keep your existing greedy algorithm):
+```python
+def arr_risk_balance(accounts_list, reps_list):
+    """Balance ARR + Risk exposure"""
+    sorted_accounts = sorted(accounts_list, key=lambda x: x['ARR'], reverse=True)
+    
+    total_arr = sum(a['ARR'] for a in accounts_list)
+    target_arr = total_arr / len(reps_list)
+    
+    rep_stats = {
+        rep: {
+            'total_arr': 0,
+            'accounts': [],
+            'count': 0,
+            'high_risk_count': 0
+        } 
+        for rep in reps_list
+    }
+    
+    for account in sorted_accounts:
+        scores = {}
+        
+        for rep in reps_list:
+            score = 0.0
+            
+            # ARR deviation penalty (70% weight)
+            projected_arr = rep_stats[rep]['total_arr'] + account['ARR']
+            arr_dev = abs(projected_arr - target_arr)
+            score -= (arr_dev / 1000) * 0.70
+            
+            # Risk balance (30% weight)
+            if rep_stats[rep]['count'] > 0:
+                risk_pct = rep_stats[rep]['high_risk_count'] / rep_stats[rep]['count']
+            else:
+                risk_pct = 0
+            
+            is_high_risk = account['Risk_Score'] > 70
+            
+            if is_high_risk:
+                if risk_pct < 0.30:
+                    score += 10.0 * 0.30
+                elif risk_pct > 0.45:
+                    score -= 10.0 * 0.30
+            else:
+                if risk_pct > 0.45:
+                    score += 10.0 * 0.30
+                elif risk_pct < 0.30:
+                    score -= 10.0 * 0.30
+            
+            scores[rep] = score
+        
+        best_rep = max(scores.keys(), key=lambda r: scores[r])
+        rep_stats[best_rep]['total_arr'] += account['ARR']
+        rep_stats[best_rep]['accounts'].append(account)
+        rep_stats[best_rep]['count'] += 1
+        if account['Risk_Score'] > 70:
+            rep_stats[best_rep]['high_risk_count'] += 1
+    
+    return rep_stats
+
+
+def arr_geography_balance(accounts_list, reps_list, rep_locations):
+    """Balance ARR + Geographic proximity"""
+    sorted_accounts = sorted(accounts_list, key=lambda x: x['ARR'], reverse=True)
+    
+    total_arr = sum(a['ARR'] for a in accounts_list)
+    target_arr = total_arr / len(reps_list)
+    
+    rep_stats = {
+        rep: {
+            'total_arr': 0,
+            'accounts': [],
+            'count': 0,
+            'same_state_count': 0,
+            'location': rep_locations[rep]
+        } 
+        for rep in reps_list
+    }
+    
+    for account in sorted_accounts:
+        scores = {}
+        
+        for rep in reps_list:
+            score = 0.0
+            
+            # ARR deviation penalty (60% weight)
+            projected_arr = rep_stats[rep]['total_arr'] + account['ARR']
+            arr_dev = abs(projected_arr - target_arr)
+            score -= (arr_dev / 1000) * 0.60
+            
+            # Geography bonus (40% weight)
+            if account['Location'] == rep_stats[rep]['location']:
+                score += 20.0 * 0.40
+            
+            scores[rep] = score
+        
+        best_rep = max(scores.keys(), key=lambda r: scores[r])
+        rep_stats[best_rep]['total_arr'] += account['ARR']
+        rep_stats[best_rep]['accounts'].append(account)
+        rep_stats[best_rep]['count'] += 1
+        if account['Location'] == rep_stats[best_rep]['location']:
+            rep_stats[best_rep]['same_state_count'] += 1
+    
+    return rep_stats
+
+
+def smart_multifactor(accounts_list, reps_list, rep_locations):
+    """Balance ARR + Risk + Geography + Workload"""
+    sorted_accounts = sorted(accounts_list, key=lambda x: x['ARR'], reverse=True)
+    
+    total_arr = sum(a['ARR'] for a in accounts_list)
+    target_arr = total_arr / len(reps_list)
+    target_count = len(accounts_list) / len(reps_list)
+    
+    rep_stats = {
+        rep: {
+            'total_arr': 0,
+            'accounts': [],
+            'count': 0,
+            'high_risk_count': 0,
+            'same_state_count': 0,
+            'location': rep_locations[rep]
+        } 
+        for rep in reps_list
+    }
+    
+    for account in sorted_accounts:
+        scores = {}
+        
+        for rep in reps_list:
+            score = 0.0
+            
+            # ARR balance (40% weight)
+            projected_arr = rep_stats[rep]['total_arr'] + account['ARR']
+            score -= (abs(projected_arr - target_arr) / 1000) * 0.40
+            
+            # Workload balance (25% weight)
+            projected_count = rep_stats[rep]['count'] + 1
+            score -= abs(projected_count - target_count) * 0.25
+            
+            # Geography (20% weight)
+            if account['Location'] == rep_stats[rep]['location']:
+                score += 15.0 * 0.20
+            
+            # Risk balance (15% weight)
+            if rep_stats[rep]['count'] > 0:
+                risk_pct = rep_stats[rep]['high_risk_count'] / rep_stats[rep]['count']
+            else:
+                risk_pct = 0
+            
+            is_high_risk = account['Risk_Score'] > 70
+            
+            if is_high_risk:
+                if risk_pct < 0.30:
+                    score += 8.0 * 0.15
+                elif risk_pct > 0.45:
+                    score -= 8.0 * 0.15
+            else:
+                if risk_pct > 0.45:
+                    score += 8.0 * 0.15
+                elif risk_pct < 0.30:
+                    score -= 8.0 * 0.15
+            
+            scores[rep] = score
+        
+        best_rep = max(scores.keys(), key=lambda r: scores[r])
+        rep_stats[best_rep]['total_arr'] += account['ARR']
+        rep_stats[best_rep]['accounts'].append(account)
+        rep_stats[best_rep]['count'] += 1
+        if account['Risk_Score'] > 70:
+            rep_stats[best_rep]['high_risk_count'] += 1
+        if account['Location'] == rep_stats[best_rep]['location']:
+            rep_stats[best_rep]['same_state_count'] += 1
+    
+    return rep_stats
+```
+
+ADD 3: Strategy Selection Logic
+
+Replace your current distribution call with this:
+```python
+# Load rep locations from reps dataframe
+rep_locations = dict(zip(reps_df['Rep_Name'], reps_df['Location']))
+
+# Get rep lists
+enterprise_reps = reps_df[reps_df['Segment'] == 'Enterprise']['Rep_Name'].tolist()
+midmarket_reps = reps_df[reps_df['Segment'] == 'Mid Market']['Rep_Name'].tolist()
+
+# Split accounts based on threshold
+enterprise_accounts = accounts_df[accounts_df['Num_Employees'] >= threshold].to_dict('records')
+midmarket_accounts = accounts_df[accounts_df['Num_Employees'] < threshold].to_dict('records')
+
+# Apply selected strategy
+if strategy == "Pure ARR Balance":
+    # Use your existing greedy function (just rename it if needed)
+    ent_dist = greedy_bin_packing(enterprise_accounts, enterprise_reps)
+    mid_dist = greedy_bin_packing(midmarket_accounts, midmarket_reps)
+    
+elif strategy == "ARR + Risk Balance":
+    ent_dist = arr_risk_balance(enterprise_accounts, enterprise_reps)
+    mid_dist = arr_risk_balance(midmarket_accounts, midmarket_reps)
+    
+elif strategy == "ARR + Geographic Clustering":
+    ent_dist = arr_geography_balance(enterprise_accounts, enterprise_reps, rep_locations)
+    mid_dist = arr_geography_balance(midmarket_accounts, midmarket_reps, rep_locations)
+    
+elif strategy == "Smart Multi-Factor":
+    ent_dist = smart_multifactor(enterprise_accounts, enterprise_reps, rep_locations)
+    mid_dist = smart_multifactor(midmarket_accounts, midmarket_reps, rep_locations)
+```
+
+ADD 4: Optional - Strategy Comparison Metrics
+
+Add this below your charts to show what each strategy optimizes:
+```python
+# Show strategy-specific metrics
+st.divider()
+st.subheader("📊 Strategy Performance Metrics")
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    # ARR Balance metric
+    ent_arrs = [data['total_arr'] for data in ent_dist.values()]
+    arr_std = np.std(ent_arrs)
+    st.metric("ARR Std Dev (Ent)", f"${arr_std:,.0f}", 
+              delta="Lower is better", delta_color="inverse")
+
+with col2:
+    # Account count balance
+    ent_counts = [data['count'] for data in ent_dist.values()]
+    count_range = max(ent_counts) - min(ent_counts)
+    st.metric("Workload Range (Ent)", f"{count_range} accounts",
+              delta="Lower is better", delta_color="inverse")
+
+with col3:
+    # Geography metric (if available)
+    if 'same_state_count' in list(ent_dist.values())[0]:
+        total_same = sum(data['same_state_count'] for data in ent_dist.values())
+        total_accts = sum(data['count'] for data in ent_dist.values())
+        same_state_pct = (total_same / total_accts) * 100 if total_accts > 0 else 0
+        st.metric("Same-State % (Ent)", f"{same_state_pct:.1f}%",
+                  delta="Higher is better")
+    else:
+        st.metric("Same-State % (Ent)", "N/A")
+
+with col4:
+    # Risk balance (if available)
+    if 'high_risk_count' in list(ent_dist.values())[0]:
+        risk_pcts = []
+        for data in ent_dist.values():
+            if data['count'] > 0:
+                risk_pcts.append((data['high_risk_count'] / data['count']) * 100)
+        risk_std = np.std(risk_pcts) if risk_pcts else 0
+        st.metric("Risk Balance (Ent)", f"{risk_std:.1f}% std",
+                  delta="Lower is better", delta_color="inverse")
+    else:
+        st.metric("Risk Balance (Ent)", "N/A")
+```
+
+═══════════════════════════════════════════════════════════════════════
+TESTING CHECKLIST
+═══════════════════════════════════════════════════════════════════════
+
+After adding these changes, test each strategy at threshold 100K:
+
+Strategy: Pure ARR Balance
+✓ Enterprise reps: All within $50K of each other
+✓ Very tight ARR distribution
+
+Strategy: ARR + Risk Balance  
+✓ Enterprise reps: Within $100K of each other
+✓ All reps have 30-40% high-risk accounts
+✓ No rep has >50% high-risk
+
+Strategy: ARR + Geographic Clustering
+✓ Enterprise reps: Within $200K of each other
+✓ Same-state % increases to 25-35%
+✓ Mickey (GA) has MORE GA accounts than before
+
+Strategy: Smart Multi-Factor
+✓ Enterprise reps: Within $150K of each other
+✓ Account counts: All reps within 3 accounts of each other
+✓ Same-state %: 20-25%
+✓ Risk %: 30-40% per rep
+
+═══════════════════════════════════════════════════════════════════════
+WHAT THE USER WILL SEE
+═══════════════════════════════════════════════════════════════════════
+
+Sidebar now has TWO controls:
+1. Employee Threshold slider (existing)
+2. Distribution Strategy dropdown (NEW)
+
+When they change the dropdown, the charts recalculate instantly showing 
+different account assignments based on the selected strategy.
+
+Main area shows:
+- Same charts as before
+- NEW metrics row showing strategy performance
+- Download button includes strategy name in filename
+
+═══════════════════════════════════════════════════════════════════════
+IMPLEMENTATION NOTES
+═══════════════════════════════════════════════════════════════════════
+
+1. Keep all your existing code structure
+2. Add the dropdown selector in sidebar
+3. Add the 3 new functions
+4. Update the distribution logic to call the right function
+5. Optionally add the metrics comparison row
+
+This is a MINIMAL change to your existing working app - just adding 
+strategy options on top of what you already have.
+
+Build this enhancement now.
