@@ -90,7 +90,7 @@ function greedyBinPacking(accounts: Account[], reps: Rep[]): Account[] {
     repHeaps.sort((a, b) => a.currentARR - b.currentARR);
     const targetRep = repHeaps[0];
     targetRep.currentARR += acc.ARR;
-    return { ...acc, Assigned_Rep: targetRep.Rep_Name };
+    return { ...acc, Assigned_Rep: targetRep.Rep_Name, Segment: acc.Segment };
   });
 }
 
@@ -143,7 +143,7 @@ function arrRiskBalance(accounts: Account[], reps: Rep[]): Account[] {
     bestRepStats.count++;
     if (account.Risk_Score > 70) bestRepStats.highRiskCount++;
 
-    return { ...account, Assigned_Rep: bestRepName };
+    return { ...account, Assigned_Rep: bestRepName, Segment: account.Segment };
   });
 }
 
@@ -188,7 +188,7 @@ function arrGeographyBalance(accounts: Account[], reps: Rep[]): Account[] {
     bestRepStats.count++;
     if (account.Location === bestRepStats.Location) bestRepStats.sameStateCount++;
 
-    return { ...account, Assigned_Rep: bestRepName };
+    return { ...account, Assigned_Rep: bestRepName, Segment: account.Segment };
   });
 }
 

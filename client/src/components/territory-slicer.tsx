@@ -3,10 +3,11 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useData, segmentAccounts, distributeAccounts, calculateRepStats, type DistributionStrategy } from "@/lib/logic";
+import { useData, segmentAccounts, distributeAccounts, calculateRepStats, type DistributionStrategy, type Account, type RepStats } from "@/lib/logic";
 import { Loader2, TrendingUp, Users, Target, Info, MapPin, ShieldAlert, Scale, BrainCircuit } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
+import { RepAccountsDialog } from "@/components/rep-accounts-dialog";
 
 // Custom Tooltip for the Chart
 const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
@@ -50,6 +51,8 @@ export function TerritorySlicer() {
   const { reps, accounts, loading } = useData();
   const [threshold, setThreshold] = useState([100000]); // Array for slider component
   const [strategy, setStrategy] = useState<DistributionStrategy>("Pure ARR Balance");
+  const [activeRep, setActiveRep] = useState<RepStats | null>(null);
+  const [repDialogOpen, setRepDialogOpen] = useState(false);
 
   const processedData = useMemo(() => {
     if (loading || !reps.length || !accounts.length) return null;
@@ -87,6 +90,8 @@ export function TerritorySlicer() {
     return {
       stats,
       totalARR,
+      segmented,
+      distributed,
       entCount: entAccounts.length,
       mmCount: mmAccounts.length,
       entARR: entAccounts.reduce((sum, a) => sum + a.ARR, 0),
@@ -106,6 +111,11 @@ export function TerritorySlicer() {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
   };
 
+  const openRepDetails = (rep: RepStats) => {
+    setActiveRep(rep);
+    setRepDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -118,6 +128,15 @@ export function TerritorySlicer() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <RepAccountsDialog
+        open={repDialogOpen}
+        onOpenChange={(open) => {
+          setRepDialogOpen(open);
+          if (!open) setActiveRep(null);
+        }}
+        rep={activeRep}
+        accounts={processedData.distributed as Account[]}
+      />
       
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -335,7 +354,17 @@ export function TerritorySlicer() {
           <CardContent className="pt-4">
             <div className="space-y-3">
               {processedData.entReps.map((rep) => (
-                <div key={rep.name} className="group flex items-center justify-between p-3 bg-background/40 rounded-lg border border-border/40 hover:bg-background/60 hover:border-chart-2/30 transition-all cursor-pointer">
+                <div
+                  key={rep.name}
+                  className="group flex items-center justify-between p-3 bg-background/40 rounded-lg border border-border/40 hover:bg-background/60 hover:border-chart-2/30 transition-all cursor-pointer"
+                  onClick={() => openRepDetails(rep)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") openRepDetails(rep);
+                  }}
+                  data-testid={`card-rep-enterprise-${rep.name}`}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-chart-2/10 text-chart-2 group-hover:bg-chart-2/20">
                       {rep.name.charAt(0)}
@@ -384,7 +413,17 @@ export function TerritorySlicer() {
           <CardContent className="pt-4">
             <div className="space-y-3">
               {processedData.mmReps.map((rep) => (
-                <div key={rep.name} className="group flex items-center justify-between p-3 bg-background/40 rounded-lg border border-border/40 hover:bg-background/60 hover:border-chart-1/30 transition-all cursor-pointer">
+                <div
+                  key={rep.name}
+                  className="group flex items-center justify-between p-3 bg-background/40 rounded-lg border border-border/40 hover:bg-background/60 hover:border-chart-1/30 transition-all cursor-pointer"
+                  onClick={() => openRepDetails(rep)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") openRepDetails(rep);
+                  }}
+                  data-testid={`card-rep-midmarket-${rep.name}`}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-chart-1/10 text-chart-1 group-hover:bg-chart-1/20">
                       {rep.name.charAt(0)}
