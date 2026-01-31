@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import Papa from "papaparse";
+import type { DatasetError, DatasetSource } from "@/lib/data-loader";
+import { loadDefaultDataset } from "@/lib/data-loader";
 
 export interface Rep {
   Rep_Name: string;
@@ -36,34 +37,73 @@ export function useData() {
   const [reps, setReps] = useState<Rep[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<DatasetSource>("default");
+  const [error, setError] = useState<DatasetError | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchData() {
       try {
-        const repsRes = await fetch("/data/GTM-Engineer_Challenge_-_Reps_(1)_1769598230595.csv");
-        const repsText = await repsRes.text();
-        const accountsRes = await fetch("/data/GTM-Engineer_Challenge_-_Accounts_(1)_1769598619158.csv");
-        const accountsText = await accountsRes.text();
+        setLoading(true);
+        setError(null);
 
-        const parsedReps = Papa.parse(repsText, { header: true, skipEmptyLines: true }).data as Rep[];
-        const parsedAccounts = Papa.parse(accountsText, { 
-          header: true, 
-          skipEmptyLines: true,
-          dynamicTyping: true 
-        }).data as Account[];
+        const data = await loadDefaultDataset();
+        if (cancelled) return;
 
-        setReps(parsedReps);
-        setAccounts(parsedAccounts);
-      } catch (error) {
-        console.error("Failed to load data", error);
+        setReps(data.reps);
+        setAccounts(data.accounts);
+        setSource(data.source);
+      } catch (e) {
+        if (cancelled) return;
+        console.error("Failed to load data", e);
+        setError({
+          title: "Failed to load dataset",
+          message: "Please refresh the page and try again.",
+        });
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return {
+    reps,
+    accounts,
+    loading,
+    source,
+    error,
+    setDataset: (next: { reps: Rep[]; accounts: Account[]; source: DatasetSource }) => {
+      setReps(next.reps);
+      setAccounts(next.accounts);
+      setSource(next.source);
+      setError(null);
+      setLoading(false);
+    },
+    resetToDefault: async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await loadDefaultDataset();
+        setReps(data.reps);
+        setAccounts(data.accounts);
+        setSource(data.source);
+      } catch (e) {
+        console.error("Failed to load default dataset", e);
+        setError({
+          title: "Failed to reset dataset",
+          message: "Please refresh the page and try again.",
+        });
       } finally {
         setLoading(false);
       }
-    }
-    fetchData();
-  }, []);
-
-  return { reps, accounts, loading };
+    },
+  };
 }
 
 // ALGORITHMS

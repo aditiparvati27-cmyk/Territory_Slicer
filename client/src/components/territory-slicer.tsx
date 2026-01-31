@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useData, segmentAccounts, distributeAccounts, calculateRepStats, type DistributionStrategy, type Account, type RepStats } from "@/lib/logic";
-import { Loader2, TrendingUp, Users, Target, Info, MapPin, ShieldAlert, Scale, BrainCircuit } from "lucide-react";
+import { Loader2, TrendingUp, Users, Target, MapPin, ShieldAlert, Scale, BrainCircuit } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
 import { RepAccountsDialog } from "@/components/rep-accounts-dialog";
+import { DatasetManager } from "@/components/dataset-manager";
 
 // Custom Tooltip for the Chart
 const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
@@ -48,7 +49,7 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
 };
 
 export function TerritorySlicer() {
-  const { reps, accounts, loading } = useData();
+  const { reps, accounts, loading, source, error, setDataset, resetToDefault } = useData();
   const [threshold, setThreshold] = useState([100000]); // Array for slider component
   const [strategy, setStrategy] = useState<DistributionStrategy>("Pure ARR Balance");
   const [activeRep, setActiveRep] = useState<RepStats | null>(null);
@@ -124,7 +125,24 @@ export function TerritorySlicer() {
     );
   }
 
-  if (!processedData) return <div>No data available</div>;
+  if (!processedData) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-title">Territory Slicer</h1>
+          <p className="text-muted-foreground mt-1" data-testid="text-subtitle">Optimize sales territories by employee count threshold</p>
+        </div>
+        <DatasetManager
+          source={source}
+          onDatasetLoaded={(next) => setDataset(next)}
+          onResetDefault={() => resetToDefault()}
+        />
+        <div className="text-sm text-muted-foreground" data-testid="text-no-data">
+          {error ? `${error.title}: ${error.message}` : "No data available"}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -141,22 +159,29 @@ export function TerritorySlicer() {
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Territory Slicer</h1>
-          <p className="text-muted-foreground mt-1">Optimize sales territories by employee count threshold</p>
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-title">Territory Slicer</h1>
+          <p className="text-muted-foreground mt-1" data-testid="text-subtitle">Optimize sales territories by employee count threshold</p>
         </div>
       </div>
 
       {/* CONTROL PANEL & SUMMARY */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* CONFIG CARD */}
-        <Card className="lg:col-span-1 border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-lg font-medium flex items-center gap-2">
-              <SettingsIcon className="w-5 h-5 text-chart-2" />
-              Configuration
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <div className="lg:col-span-1 space-y-4">
+          <DatasetManager
+            source={source}
+            onDatasetLoaded={(next) => setDataset(next)}
+            onResetDefault={() => resetToDefault()}
+          />
+
+          <Card className="border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-medium flex items-center gap-2">
+                <SettingsIcon className="w-5 h-5 text-chart-2" />
+                Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
             {/* THRESHOLD SLIDER */}
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-3">
@@ -269,6 +294,7 @@ export function TerritorySlicer() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
         {/* VISUALIZATION CARD */}
         <div className="lg:col-span-2 space-y-6">
