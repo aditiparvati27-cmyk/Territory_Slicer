@@ -16,9 +16,13 @@ export function Sidebar() {
   return (
     <div className="w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col h-screen fixed left-0 top-0 z-10">
       <div className="p-4 h-14 flex items-center border-b border-sidebar-border/40">
-        <div className="flex items-center gap-2 font-semibold text-sidebar-primary-foreground">
-          <div className="w-6 h-6 bg-sidebar-primary-foreground text-sidebar-primary flex items-center justify-center rounded text-xs font-bold">P</div>
-          <span>Profound</span>
+        <div className="flex items-center gap-3 font-semibold text-sidebar-primary-foreground">
+          <img
+            src="/profound-wordmark.png"
+            alt="Profound"
+            className="h-6 w-auto opacity-95"
+            data-testid="img-profound-wordmark"
+          />
           <ChevronDown className="w-4 h-4 text-muted-foreground ml-auto" />
         </div>
       </div>

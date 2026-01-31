@@ -159,11 +159,37 @@ export function TerritorySlicer() {
           <CardContent className="space-y-6">
             {/* THRESHOLD SLIDER */}
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-muted-foreground">Employee Threshold</span>
-                <Badge variant="outline" className="text-lg px-3 py-1 bg-background font-mono border-chart-2/20 text-chart-2">
-                  {threshold[0].toLocaleString()}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={500}
+                    max={200000}
+                    step={5000}
+                    value={threshold[0]}
+                    onChange={(e) => {
+                      const next = Number(e.target.value);
+                      if (Number.isFinite(next)) setThreshold([next]);
+                    }}
+                    onBlur={(e) => {
+                      const raw = Number(e.target.value);
+                      const clamped = Math.max(500, Math.min(200000, raw || 0));
+                      const snapped = Math.round(clamped / 5000) * 5000;
+                      setThreshold([snapped]);
+                    }}
+                    className="h-9 w-[140px] rounded-md border border-input bg-background/40 px-3 font-mono text-sm text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    data-testid="input-threshold"
+                    aria-label="Employee threshold"
+                  />
+                  <Badge
+                    variant="outline"
+                    className="text-lg px-3 py-1 bg-background font-mono border-chart-2/20 text-chart-2"
+                    data-testid="badge-threshold"
+                  >
+                    {threshold[0].toLocaleString()}
+                  </Badge>
+                </div>
               </div>
               <Slider
                 value={threshold}
@@ -172,6 +198,7 @@ export function TerritorySlicer() {
                 max={200000}
                 step={5000}
                 className="py-4"
+                data-testid="slider-threshold"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>500</span>
