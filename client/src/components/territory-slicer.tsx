@@ -8,7 +8,6 @@ import { Loader2, TrendingUp, Users, Target, MapPin, ShieldAlert, Scale, BrainCi
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
 import { RepAccountsDialog } from "@/components/rep-accounts-dialog";
-import { DatasetManager } from "@/components/dataset-manager";
 
 // Custom Tooltip for the Chart
 const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
@@ -49,7 +48,7 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
 };
 
 export function TerritorySlicer() {
-  const { reps, accounts, loading, source, error, setDataset, resetToDefault } = useData();
+  const { reps, accounts, loading, error } = useData();
   const [threshold, setThreshold] = useState([100000]); // Array for slider component
   const [strategy, setStrategy] = useState<DistributionStrategy>("Pure ARR Balance");
   const [activeRep, setActiveRep] = useState<RepStats | null>(null);
@@ -132,11 +131,6 @@ export function TerritorySlicer() {
           <h1 className="text-3xl font-bold tracking-tight" data-testid="text-title">Territory Slicer</h1>
           <p className="text-muted-foreground mt-1" data-testid="text-subtitle">Optimize sales territories by employee count threshold</p>
         </div>
-        <DatasetManager
-          source={source}
-          onDatasetLoaded={(next) => setDataset(next)}
-          onResetDefault={() => resetToDefault()}
-        />
         <div className="text-sm text-muted-foreground" data-testid="text-no-data">
           {error ? `${error.title}: ${error.message}` : "No data available"}
         </div>
@@ -168,12 +162,6 @@ export function TerritorySlicer() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* CONFIG CARD */}
         <div className="lg:col-span-1 space-y-4">
-          <DatasetManager
-            source={source}
-            onDatasetLoaded={(next) => setDataset(next)}
-            onResetDefault={() => resetToDefault()}
-          />
-
           <Card className="border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-lg font-medium flex items-center gap-2">
