@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { 
-  LayoutDashboard, 
+import {
+  LayoutDashboard,
+  Database,
   Bell,
   ChevronDown
 } from "lucide-react";
@@ -11,6 +12,7 @@ export function Sidebar() {
 
   const navItems = [
     { icon: LayoutDashboard, label: "Home", href: "/" },
+    { icon: Database, label: "Upload Dataset", href: "/dataset" },
   ];
 
   return (
