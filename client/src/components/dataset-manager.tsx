@@ -74,7 +74,7 @@ export function DatasetManager({
             Dataset
           </div>
           <div className="mt-1 text-xs text-muted-foreground" data-testid="text-dataset-subtitle">
-            Upload new CSVs (same schema) or use the default dataset.
+            Upload new CSV or TSV files (same schema) or use the default dataset.
           </div>
         </div>
 
@@ -140,7 +140,7 @@ export function DatasetManager({
           <input
             ref={repsRef}
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,.tsv,text/csv,text/tab-separated-values"
             onChange={(e) => setRepsFile(e.target.files?.[0] ?? null)}
             className="block w-full cursor-pointer rounded-md border border-input bg-background/40 px-3 py-2 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-2 file:text-xs file:font-medium file:text-foreground"
             data-testid="input-upload-reps"
@@ -171,7 +171,7 @@ export function DatasetManager({
           <input
             ref={accountsRef}
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,.tsv,text/csv,text/tab-separated-values"
             onChange={(e) => setAccountsFile(e.target.files?.[0] ?? null)}
             className="block w-full cursor-pointer rounded-md border border-input bg-background/40 px-3 py-2 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-2 file:text-xs file:font-medium file:text-foreground"
             data-testid="input-upload-accounts"
@@ -183,7 +183,7 @@ export function DatasetManager({
 
         <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-[11px] text-muted-foreground" data-testid="text-dataset-help">
-            Upload both files, then apply. Files must match the template headers.
+            Upload both files, then apply. CSV and TSV supported. Files must match the template headers.
           </div>
           <Button
             onClick={applyUpload}

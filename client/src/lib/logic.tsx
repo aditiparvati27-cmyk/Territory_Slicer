@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, createContext, type ReactNode } from "react";
 import type { DatasetError, DatasetSource } from "@/lib/data-loader";
 import { loadDefaultDataset } from "@/lib/data-loader";
 
@@ -33,7 +33,23 @@ export interface RepStats {
   sameStateCount: number;
 }
 
-export function useData() {
+// ---------------------------------------------------------------------------
+// Shared data context — ensures uploaded datasets are visible across all pages
+// ---------------------------------------------------------------------------
+
+interface DataContextValue {
+  reps: Rep[];
+  accounts: Account[];
+  loading: boolean;
+  source: DatasetSource;
+  error: DatasetError | null;
+  setDataset: (next: { reps: Rep[]; accounts: Account[]; source: DatasetSource }) => void;
+  resetToDefault: () => Promise<void>;
+}
+
+const DataContext = createContext<DataContextValue | null>(null);
+
+export function DataProvider({ children }: { children: ReactNode }) {
   const [reps, setReps] = useState<Rep[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,38 +88,46 @@ export function useData() {
     };
   }, []);
 
-  return {
-    reps,
-    accounts,
-    loading,
-    source,
-    error,
-    setDataset: (next: { reps: Rep[]; accounts: Account[]; source: DatasetSource }) => {
-      setReps(next.reps);
-      setAccounts(next.accounts);
-      setSource(next.source);
-      setError(null);
-      setLoading(false);
-    },
-    resetToDefault: async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await loadDefaultDataset();
-        setReps(data.reps);
-        setAccounts(data.accounts);
-        setSource(data.source);
-      } catch (e) {
-        console.error("Failed to load default dataset", e);
-        setError({
-          title: "Failed to reset dataset",
-          message: "Please refresh the page and try again.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    },
+  const setDataset = (next: { reps: Rep[]; accounts: Account[]; source: DatasetSource }) => {
+    setReps(next.reps);
+    setAccounts(next.accounts);
+    setSource(next.source);
+    setError(null);
+    setLoading(false);
   };
+
+  const resetToDefault = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await loadDefaultDataset();
+      setReps(data.reps);
+      setAccounts(data.accounts);
+      setSource(data.source);
+    } catch (e) {
+      console.error("Failed to load default dataset", e);
+      setError({
+        title: "Failed to reset dataset",
+        message: "Please refresh the page and try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <DataContext.Provider value={{ reps, accounts, loading, source, error, setDataset, resetToDefault }}>
+      {children}
+    </DataContext.Provider>
+  );
+}
+
+export function useData(): DataContextValue {
+  const ctx = useContext(DataContext);
+  if (!ctx) {
+    throw new Error("useData must be used within a <DataProvider>");
+  }
+  return ctx;
 }
 
 // ALGORITHMS

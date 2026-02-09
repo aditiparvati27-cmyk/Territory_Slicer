@@ -21,19 +21,75 @@ export type DatasetError = {
   message: string;
 };
 
+// ---------------------------------------------------------------------------
+// Delimiter detection — supports CSV (comma) and TSV (tab) files
+// ---------------------------------------------------------------------------
+
+function detectDelimiter(text: string): string {
+  const firstLine = (text.split(/\r?\n/)[0] ?? "");
+  // If the first line has tabs, treat as TSV
+  if (firstLine.includes("\t")) return "\t";
+  return ",";
+}
+
+// ---------------------------------------------------------------------------
+// Parse headers from the first line using the detected delimiter
+// ---------------------------------------------------------------------------
+
+function parseHeaders(csvText: string): string[] {
+  const firstLine = (csvText.split(/\r?\n/)[0] ?? "").trim();
+  const delimiter = detectDelimiter(csvText);
+  return firstLine.split(delimiter).map((s) => s.trim()).filter(Boolean);
+}
+
 export function parseCsvText<T>(
   text: string,
   opts?: {
     dynamicTyping?: boolean;
   }
 ): T[] {
+  const delimiter = detectDelimiter(text);
+
   const parsed = Papa.parse(text, {
     header: true,
     skipEmptyLines: true,
     dynamicTyping: opts?.dynamicTyping ?? false,
+    delimiter,
   });
 
   return (parsed.data ?? []) as T[];
+}
+
+// ---------------------------------------------------------------------------
+// Coerce numeric fields — handles comma-formatted numbers like "245,600"
+// ---------------------------------------------------------------------------
+
+const ACCOUNT_NUMERIC_FIELDS: (keyof Account)[] = [
+  "ARR",
+  "Num_Employees",
+  "Num_Marketers",
+  "Risk_Score",
+];
+
+function coerceNumber(value: unknown): number {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    // Strip commas from formatted numbers like "245,600"
+    const cleaned = value.replace(/,/g, "").trim();
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : 0;
+  }
+  return 0;
+}
+
+function normalizeAccounts(raw: Record<string, unknown>[]): Account[] {
+  return raw.map((row) => {
+    const normalized: Record<string, unknown> = { ...row };
+    for (const field of ACCOUNT_NUMERIC_FIELDS) {
+      normalized[field] = coerceNumber(row[field]);
+    }
+    return normalized as unknown as Account;
+  });
 }
 
 function missingHeaders(headers: string[], required: string[]) {
@@ -42,8 +98,7 @@ function missingHeaders(headers: string[], required: string[]) {
 }
 
 export function validateRepCsvHeader(csvText: string) {
-  const firstLine = (csvText.split(/\r?\n/)[0] ?? "").trim();
-  const headers = firstLine.split(",").map((s) => s.trim()).filter(Boolean);
+  const headers = parseHeaders(csvText);
   const required = ["Rep_Name", "Location", "Segment"];
   return {
     ok: missingHeaders(headers, required).length === 0,
@@ -53,8 +108,7 @@ export function validateRepCsvHeader(csvText: string) {
 }
 
 export function validateAccountCsvHeader(csvText: string) {
-  const firstLine = (csvText.split(/\r?\n/)[0] ?? "").trim();
-  const headers = firstLine.split(",").map((s) => s.trim()).filter(Boolean);
+  const headers = parseHeaders(csvText);
   const required = [
     "Account_ID",
     "Account_Name",
@@ -88,7 +142,8 @@ export async function loadDefaultDataset(): Promise<DatasetState> {
   ]);
 
   const reps = parseCsvText<Rep>(repsText);
-  const accounts = parseCsvText<Account>(accountsText, { dynamicTyping: true });
+  const rawAccounts = parseCsvText<Record<string, unknown>>(accountsText, { dynamicTyping: true });
+  const accounts = normalizeAccounts(rawAccounts);
 
   return {
     reps,
@@ -124,7 +179,8 @@ export async function loadUploadedDataset(params: {
   }
 
   const reps = parseCsvText<Rep>(repsText);
-  const accounts = parseCsvText<Account>(accountsText, { dynamicTyping: true });
+  const rawAccounts = parseCsvText<Record<string, unknown>>(accountsText, { dynamicTyping: true });
+  const accounts = normalizeAccounts(rawAccounts);
 
   return {
     reps,
