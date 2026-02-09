@@ -31,11 +31,13 @@ export function RepAccountsDialog({
   onOpenChange,
   rep,
   accounts,
+  highRiskThreshold = 70,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   rep: RepStats | null;
   accounts: Account[];
+  highRiskThreshold?: number;
 }) {
   const [query, setQuery] = useState("");
 
@@ -61,7 +63,7 @@ export function RepAccountsDialog({
 
   const summary = useMemo(() => {
     const totalARR = repAccounts.reduce((s, a) => s + (a.ARR ?? 0), 0);
-    const highRisk = repAccounts.reduce((s, a) => s + ((a.Risk_Score ?? 0) > 70 ? 1 : 0), 0);
+    const highRisk = repAccounts.reduce((s, a) => s + ((a.Risk_Score ?? 0) > highRiskThreshold ? 1 : 0), 0);
     const inState = rep ? repAccounts.reduce((s, a) => s + (a.Location === rep.location ? 1 : 0), 0) : 0;
     return { totalARR, highRisk, inState, count: repAccounts.length };
   }, [repAccounts, rep]);

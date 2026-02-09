@@ -3,8 +3,10 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useData, segmentAccounts, distributeAccounts, calculateRepStats, type DistributionStrategy, type Account, type RepStats } from "@/lib/logic";
-import { Loader2, TrendingUp, Users, Target, MapPin, ShieldAlert, Scale, BrainCircuit } from "lucide-react";
+import { useData, segmentAccounts, distributeAccounts, calculateRepStats, type DistributionStrategy, type Account, type RepStats, type StrategyConfig, DEFAULT_STRATEGY_CONFIG } from "@/lib/logic";
+import { Loader2, TrendingUp, Users, Target, MapPin, ShieldAlert, Scale, BrainCircuit, ChevronDown, Settings2, RotateCcw } from "lucide-react";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Switch } from "@/components/ui/switch";
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { cn } from "@/lib/utils";
 import { RepAccountsDialog } from "@/components/rep-accounts-dialog";
@@ -53,6 +55,11 @@ export function TerritorySlicer() {
   const [strategy, setStrategy] = useState<DistributionStrategy>("Pure ARR Balance");
   const [activeRep, setActiveRep] = useState<RepStats | null>(null);
   const [repDialogOpen, setRepDialogOpen] = useState(false);
+  const [strategyConfig, setStrategyConfig] = useState<StrategyConfig>(DEFAULT_STRATEGY_CONFIG);
+
+  const updateConfig = (patch: Partial<StrategyConfig>) => {
+    setStrategyConfig(prev => ({ ...prev, ...patch }));
+  };
 
   const processedData = useMemo(() => {
     if (loading || !reps.length || !accounts.length) return null;
@@ -60,11 +67,11 @@ export function TerritorySlicer() {
     // 1. Segment
     const segmented = segmentAccounts(accounts, threshold[0]);
     
-    // 2. Distribute
-    const distributed = distributeAccounts(segmented, reps, strategy);
+    // 2. Distribute (with configurable strategy weights + optional swap refinement)
+    const distributed = distributeAccounts(segmented, reps, strategy, strategyConfig);
 
-    // 3. Stats
-    const stats = calculateRepStats(distributed, reps);
+    // 3. Stats (with configurable high-risk threshold)
+    const stats = calculateRepStats(distributed, reps, strategyConfig.highRiskThreshold);
 
     // 4. Totals
     const totalARR = accounts.reduce((sum, acc) => sum + acc.ARR, 0);
@@ -75,17 +82,46 @@ export function TerritorySlicer() {
     const entReps = stats.filter(r => r.segment === "Enterprise");
     const mmReps = stats.filter(r => r.segment === "Mid Market");
 
-    // Metrics for "Strategy Performance"
-    const entStats = stats.filter(r => r.segment === "Enterprise");
-    const arrStdDev = Math.sqrt(entStats.reduce((sq, n) => sq + Math.pow(n.totalARR - (entStats.reduce((sum, x) => sum + x.totalARR, 0) / entStats.length), 2), 0) / entStats.length);
-    const workloadRange = Math.max(...entStats.map(r => r.count)) - Math.min(...entStats.map(r => r.count));
-    const totalSameState = entStats.reduce((sum, r) => sum + r.sameStateCount, 0);
-    const totalEntAccounts = entStats.reduce((sum, r) => sum + r.count, 0);
-    const sameStatePct = totalEntAccounts > 0 ? (totalSameState / totalEntAccounts) * 100 : 0;
-    
-    // Risk Std Dev (approximate risk balance)
-    const riskPcts = entStats.map(r => r.count > 0 ? (r.highRiskCount / r.count) * 100 : 0);
-    const riskStdDev = Math.sqrt(riskPcts.reduce((sq, n) => sq + Math.pow(n - (riskPcts.reduce((a, b) => a + b, 0) / riskPcts.length), 2), 0) / riskPcts.length);
+    function stdDev(values: number[]): number {
+      if (values.length === 0) return 0;
+      const mean = values.reduce((a, b) => a + b, 0) / values.length;
+      return Math.sqrt(values.reduce((sq, v) => sq + Math.pow(v - mean, 2), 0) / values.length);
+    }
+
+    function computeSegmentMetrics(segStats: RepStats[]) {
+      const active = segStats.filter(r => r.count > 0);
+      if (active.length === 0) {
+        return { arrStdDev: 0, arrMean: 0, arrRange: { min: 0, max: 0 }, workloadRange: 0, workloadMin: 0, workloadMax: 0, sameStatePct: 0, riskStdDev: 0, riskMean: 0, repCount: 0, accountCount: 0 };
+      }
+      const arrValues = active.map(r => r.totalARR);
+      const arrMean = arrValues.reduce((a, b) => a + b, 0) / arrValues.length;
+      const counts = active.map(r => r.count);
+      const totalSameState = active.reduce((sum, r) => sum + r.sameStateCount, 0);
+      const totalAccounts = active.reduce((sum, r) => sum + r.count, 0);
+      const riskPcts = active.map(r => (r.highRiskCount / r.count) * 100);
+      return {
+        arrStdDev: stdDev(arrValues),
+        arrMean,
+        arrRange: { min: Math.min(...arrValues), max: Math.max(...arrValues) },
+        workloadRange: Math.max(...counts) - Math.min(...counts),
+        workloadMin: Math.min(...counts),
+        workloadMax: Math.max(...counts),
+        sameStatePct: totalAccounts > 0 ? (totalSameState / totalAccounts) * 100 : 0,
+        riskStdDev: stdDev(riskPcts),
+        riskMean: riskPcts.reduce((a, b) => a + b, 0) / riskPcts.length,
+        repCount: active.length,
+        accountCount: totalAccounts
+      };
+    }
+
+    const entMetrics = computeSegmentMetrics(entReps);
+    const mmMetrics = computeSegmentMetrics(mmReps);
+
+    // Overall metrics (across all reps)
+    const allActive = stats.filter(r => r.count > 0);
+    const totalSameState = allActive.reduce((sum, r) => sum + r.sameStateCount, 0);
+    const totalActiveAccounts = allActive.reduce((sum, r) => sum + r.count, 0);
+    const overallSameStatePct = totalActiveAccounts > 0 ? (totalSameState / totalActiveAccounts) * 100 : 0;
 
     return {
       stats,
@@ -98,14 +134,11 @@ export function TerritorySlicer() {
       mmARR: mmAccounts.reduce((sum, a) => sum + a.ARR, 0),
       entReps,
       mmReps,
-      metrics: {
-        arrStdDev,
-        workloadRange,
-        sameStatePct,
-        riskStdDev
-      }
+      entMetrics,
+      mmMetrics,
+      overallSameStatePct
     };
-  }, [reps, accounts, threshold, strategy, loading]);
+  }, [reps, accounts, threshold, strategy, strategyConfig, loading]);
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
@@ -148,6 +181,7 @@ export function TerritorySlicer() {
         }}
         rep={activeRep}
         accounts={processedData.distributed as Account[]}
+        highRiskThreshold={strategyConfig.highRiskThreshold}
       />
       
       {/* HEADER SECTION */}
@@ -265,6 +299,101 @@ export function TerritorySlicer() {
               </div>
             </div>
 
+            <div className="h-px bg-border/50" />
+
+            {/* HIGH-RISK THRESHOLD SLIDER */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">High-Risk Threshold</span>
+                <Badge variant="outline" className="font-mono text-xs px-2 py-0.5 border-chart-5/20 text-chart-5">
+                  {">"} {strategyConfig.highRiskThreshold}
+                </Badge>
+              </div>
+              <Slider
+                value={[strategyConfig.highRiskThreshold]}
+                onValueChange={([val]) => updateConfig({ highRiskThreshold: val })}
+                min={50}
+                max={90}
+                step={5}
+                className="py-2"
+                data-testid="slider-risk-threshold"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground">
+                <span>50 (more flagged)</span>
+                <span>90 (fewer flagged)</span>
+              </div>
+            </div>
+
+            <div className="h-px bg-border/50" />
+
+            {/* ADVANCED SETTINGS — Tunable Weights */}
+            <Collapsible>
+              <CollapsibleTrigger className="flex w-full items-center justify-between py-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
+                <span className="flex items-center gap-2">
+                  <Settings2 className="w-4 h-4" />
+                  Advanced Settings
+                </span>
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="space-y-4 pt-3">
+
+                  {/* ARR + Risk Balance weights */}
+                  <div className="space-y-2">
+                    <h5 className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">ARR + Risk Balance</h5>
+                    <WeightSlider label="Risk Penalty" value={strategyConfig.riskPenaltyPct}
+                      onChange={(v) => updateConfig({ riskPenaltyPct: v })} min={1} max={20} step={1} />
+                    <WeightSlider label="Risk Bonus" value={strategyConfig.riskBonusPct}
+                      onChange={(v) => updateConfig({ riskBonusPct: v })} min={1} max={15} step={1} />
+                  </div>
+
+                  {/* ARR + Geographic Clustering weight */}
+                  <div className="space-y-2">
+                    <h5 className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">ARR + Geographic Clustering</h5>
+                    <WeightSlider label="Geo Bonus" value={strategyConfig.geoBonusPct}
+                      onChange={(v) => updateConfig({ geoBonusPct: v })} min={5} max={30} step={1} />
+                  </div>
+
+                  {/* Smart Multi-Factor weights */}
+                  <div className="space-y-2">
+                    <h5 className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">Smart Multi-Factor</h5>
+                    <WeightSlider label="Workload Penalty" value={strategyConfig.workloadPenaltyPct}
+                      onChange={(v) => updateConfig({ workloadPenaltyPct: v })} min={1} max={15} step={1} />
+                    <WeightSlider label="Geo Bonus" value={strategyConfig.multiGeoBonusPct}
+                      onChange={(v) => updateConfig({ multiGeoBonusPct: v })} min={1} max={20} step={1} />
+                    <WeightSlider label="Risk Penalty" value={strategyConfig.multiRiskPenaltyPct}
+                      onChange={(v) => updateConfig({ multiRiskPenaltyPct: v })} min={1} max={15} step={1} />
+                    <WeightSlider label="Risk Bonus" value={strategyConfig.multiRiskBonusPct}
+                      onChange={(v) => updateConfig({ multiRiskBonusPct: v })} min={1} max={10} step={1} />
+                  </div>
+
+                  {/* Swap Refinement Toggle */}
+                  <div className="space-y-2">
+                    <h5 className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">Optimization</h5>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-muted-foreground">Swap Refinement</label>
+                      <Switch
+                        checked={strategyConfig.enableSwapRefinement}
+                        onCheckedChange={(v) => updateConfig({ enableSwapRefinement: v })}
+                        data-testid="switch-swap-refinement"
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Post-greedy local search that swaps accounts between reps to improve balance</p>
+                  </div>
+
+                  {/* Reset to defaults */}
+                  <button
+                    type="button"
+                    onClick={() => setStrategyConfig(DEFAULT_STRATEGY_CONFIG)}
+                    className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Reset to defaults
+                  </button>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
             <div className="pt-4 border-t border-border/50">
               <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-3 tracking-wider">Segmentation Impact</h4>
               <div className="grid grid-cols-2 gap-4">
@@ -330,44 +459,107 @@ export function TerritorySlicer() {
              </CardContent>
           </Card>
 
-          {/* METRICS DASHBOARD (New Section) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                  <Scale className="w-4 h-4" />
-                  <span className="text-xs font-medium uppercase">ARR Std Dev (Ent)</span>
+          {/* STRATEGY PERFORMANCE METRICS */}
+          <Card className="border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-medium flex items-center gap-2">
+                <Scale className="w-5 h-5 text-chart-3" />
+                Strategy Performance
+              </CardTitle>
+              <CardDescription>How well this strategy distributes accounts within each segment</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Overall Same-State % */}
+              <div className="mb-4 p-3 rounded-lg border border-border/50 bg-background/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="w-4 h-4 text-chart-4" />
+                    <span className="text-sm font-medium">Overall Same-State Match</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold font-mono">{processedData.overallSameStatePct.toFixed(1)}%</span>
+                    <span className="text-xs text-chart-4 ml-2">of accounts match rep's state</span>
+                  </div>
                 </div>
-                <div className="text-xl font-bold font-mono">{formatCurrency(processedData.metrics.arrStdDev)}</div>
-                <div className="text-[10px] text-chart-2 mt-1">Lower is better</div>
-             </div>
-             
-             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                  <Target className="w-4 h-4" />
-                  <span className="text-xs font-medium uppercase">Workload Range</span>
-                </div>
-                <div className="text-xl font-bold font-mono">{processedData.metrics.workloadRange}</div>
-                <div className="text-[10px] text-chart-2 mt-1">Acct diff (Lower is better)</div>
-             </div>
+              </div>
 
-             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                  <MapPin className="w-4 h-4" />
-                  <span className="text-xs font-medium uppercase">Same-State %</span>
-                </div>
-                <div className="text-xl font-bold font-mono">{processedData.metrics.sameStatePct.toFixed(1)}%</div>
-                <div className="text-[10px] text-chart-4 mt-1">Higher is better</div>
-             </div>
+              {/* Segment Metrics Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border/50">
+                      <th className="text-left py-2 px-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider">Metric</th>
+                      <th className="text-center py-2 px-2 text-xs font-semibold uppercase text-chart-2 tracking-wider">Enterprise</th>
+                      <th className="text-center py-2 px-2 text-xs font-semibold uppercase text-chart-1 tracking-wider">Mid-Market</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/30">
+                    {/* ARR Spread */}
+                    <tr className="hover:bg-background/30">
+                      <td className="py-3 px-2">
+                        <div className="font-medium text-foreground">ARR Spread</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">Std dev of total ARR per rep — lower = more even revenue split</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{formatCurrency(processedData.entMetrics.arrStdDev)}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">avg {formatCurrency(processedData.entMetrics.arrMean)}/rep</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{formatCurrency(processedData.mmMetrics.arrStdDev)}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">avg {formatCurrency(processedData.mmMetrics.arrMean)}/rep</div>
+                      </td>
+                    </tr>
 
-             <div className="bg-card/50 border border-border/50 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                  <ShieldAlert className="w-4 h-4" />
-                  <span className="text-xs font-medium uppercase">Risk Balance</span>
-                </div>
-                <div className="text-xl font-bold font-mono">{processedData.metrics.riskStdDev.toFixed(1)}%</div>
-                <div className="text-[10px] text-chart-5 mt-1">Std Dev (Lower is better)</div>
-             </div>
-          </div>
+                    {/* Workload Balance */}
+                    <tr className="hover:bg-background/30">
+                      <td className="py-3 px-2">
+                        <div className="font-medium text-foreground">Workload Balance</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">Difference between most and fewest accounts per rep — lower = fairer</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{processedData.entMetrics.workloadRange}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">{processedData.entMetrics.workloadMin}–{processedData.entMetrics.workloadMax} accts/rep</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{processedData.mmMetrics.workloadRange}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">{processedData.mmMetrics.workloadMin}–{processedData.mmMetrics.workloadMax} accts/rep</div>
+                      </td>
+                    </tr>
+
+                    {/* Same-State % */}
+                    <tr className="hover:bg-background/30">
+                      <td className="py-3 px-2">
+                        <div className="font-medium text-foreground">Same-State %</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">Accounts assigned to a rep in the same state — higher = less travel</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{processedData.entMetrics.sameStatePct.toFixed(1)}%</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{processedData.mmMetrics.sameStatePct.toFixed(1)}%</div>
+                      </td>
+                    </tr>
+
+                    {/* Risk Balance */}
+                    <tr className="hover:bg-background/30">
+                      <td className="py-3 px-2">
+                        <div className="font-medium text-foreground">Risk Balance</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">Variation in high-risk account % across reps — lower = risk shared evenly</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{processedData.entMetrics.riskStdDev.toFixed(1)}%</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">avg {processedData.entMetrics.riskMean.toFixed(0)}% high-risk</div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <div className="font-mono font-bold text-foreground">{processedData.mmMetrics.riskStdDev.toFixed(1)}%</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">avg {processedData.mmMetrics.riskMean.toFixed(0)}% high-risk</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
 
         </div>
       </div>
@@ -494,6 +686,34 @@ export function TerritorySlicer() {
         </Card>
 
       </div>
+    </div>
+  );
+}
+
+function WeightSlider({
+  label, value, onChange, min, max, step,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+  step: number;
+}) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-muted-foreground">{label}</span>
+        <span className="text-[11px] font-mono font-medium text-foreground">{value}%</span>
+      </div>
+      <Slider
+        value={[value]}
+        onValueChange={([v]) => onChange(v)}
+        min={min}
+        max={max}
+        step={step}
+        className="py-1"
+      />
     </div>
   );
 }

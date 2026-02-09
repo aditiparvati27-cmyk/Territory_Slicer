@@ -6,9 +6,12 @@
   "scripts": {
     "dev:client": "vite dev --port 5000",
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "tsx script/build.ts",
+    "build": "vite build --config vite.config.ts",
+    "build:full": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
@@ -81,9 +84,6 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@replit/vite-plugin-cartographer": "^0.4.4",
-    "@replit/vite-plugin-dev-banner": "^0.1.1",
-    "@replit/vite-plugin-runtime-error-modal": "^0.0.4",
     "@tailwindcss/vite": "^4.1.14",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.0",
@@ -102,7 +102,8 @@
     "tailwindcss": "^4.1.14",
     "tsx": "^4.20.5",
     "typescript": "5.6.3",
-    "vite": "^7.1.9"
+    "vite": "^7.1.9",
+    "vitest": "^3.1.1"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
