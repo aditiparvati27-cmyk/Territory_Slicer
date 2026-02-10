@@ -7,6 +7,7 @@ import { DataProvider } from "@/lib/logic";
 import Home from "@/pages/home";
 import Dataset from "@/pages/dataset";
 import NotFound from "@/pages/not-found";
+import { Analytics } from "@vercel/analytics/react";
 
 function Router() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <DataProvider>
           <Toaster />
           <Router />
+          <Analytics />
         </DataProvider>
       </TooltipProvider>
     </QueryClientProvider>
