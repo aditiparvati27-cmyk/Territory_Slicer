@@ -130,7 +130,7 @@ export function RepAccountsDialog({
                 <Badge variant="outline" className="bg-background/40" data-testid="badge-rep-accounts-in-state">
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5" />
-                    {summary.inState} in-state
+                    {summary.inState} local
                   </span>
                 </Badge>
               </div>
@@ -209,7 +209,7 @@ export function RepAccountsDialog({
                               )}
                               data-testid={`badge-in-state-${a.Account_ID}`}
                             >
-                              {isInState ? "In-state" : ""}
+                              {isInState ? "Local" : ""}
                             </Badge>
                           </div>
                         </TableCell>

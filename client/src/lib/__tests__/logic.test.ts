@@ -477,16 +477,16 @@ describe("Edge Cases", () => {
 
 describe("Equity Invariants", () => {
   const reps: Rep[] = [
-    { Rep_Name: "Mickey Mouse", Location: "GA", Segment: "Enterprise" },
-    { Rep_Name: "Goofy", Location: "NC", Segment: "Enterprise" },
-    { Rep_Name: "Pluto", Location: "CA", Segment: "Enterprise" },
-    { Rep_Name: "Daisy Duck", Location: "OH", Segment: "Enterprise" },
-    { Rep_Name: "Minnie Mouse", Location: "NY", Segment: "Mid Market" },
-    { Rep_Name: "Donald Duck", Location: "TX", Segment: "Mid Market" },
-    { Rep_Name: "Ariel", Location: "MI", Segment: "Mid Market" },
-    { Rep_Name: "Simba", Location: "PA", Segment: "Mid Market" },
-    { Rep_Name: "Elsa", Location: "FL", Segment: "Mid Market" },
-    { Rep_Name: "Moana", Location: "IL", Segment: "Mid Market" },
+    { Rep_Name: "Sarah Chen", Location: "GA", Segment: "Enterprise" },
+    { Rep_Name: "David Kim", Location: "NC", Segment: "Enterprise" },
+    { Rep_Name: "Rachel Patel", Location: "CA", Segment: "Enterprise" },
+    { Rep_Name: "Chris Johnson", Location: "OH", Segment: "Enterprise" },
+    { Rep_Name: "James Miller", Location: "NY", Segment: "Mid Market" },
+    { Rep_Name: "Maria Garcia", Location: "TX", Segment: "Mid Market" },
+    { Rep_Name: "Lisa Wang", Location: "MI", Segment: "Mid Market" },
+    { Rep_Name: "Michael Brown", Location: "PA", Segment: "Mid Market" },
+    { Rep_Name: "Emily Davis", Location: "FL", Segment: "Mid Market" },
+    { Rep_Name: "Alex Torres", Location: "IL", Segment: "Mid Market" },
   ];
 
   // Simulate realistic data

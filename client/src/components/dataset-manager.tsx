@@ -29,6 +29,7 @@ export function DatasetManager({
   const [accountsFile, setAccountsFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<DatasetError | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
 
   const ready = useMemo(() => Boolean(repsFile && accountsFile), [repsFile, accountsFile]);
 
@@ -44,9 +45,12 @@ export function DatasetManager({
     try {
       setBusy(true);
       setError(null);
+      setWarnings([]);
 
       const loaded = await loadUploadedDataset({ repsFile, accountsFile });
       onDatasetLoaded({ reps: loaded.reps, accounts: loaded.accounts, source: "uploaded" });
+
+      if (loaded.warnings) setWarnings(loaded.warnings);
 
       setRepsFile(null);
       setAccountsFile(null);
@@ -112,7 +116,30 @@ export function DatasetManager({
             <AlertTriangle className="h-4 w-4" />
             <div>
               <AlertTitle>{error.title}</AlertTitle>
-              <AlertDescription>{error.message}</AlertDescription>
+              <AlertDescription>
+                {error.message}
+                {error.suggestions && error.suggestions.length > 0 && (
+                  <ul className="mt-2 list-disc pl-4 text-xs">
+                    {error.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                )}
+              </AlertDescription>
+            </div>
+          </Alert>
+        </div>
+      ) : null}
+
+      {warnings.length > 0 ? (
+        <div className="mt-3" data-testid="alert-dataset-warnings">
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <div>
+              <AlertTitle>Data warnings</AlertTitle>
+              <AlertDescription>
+                <ul className="mt-1 list-disc pl-4 text-xs">
+                  {warnings.map((w, i) => <li key={i}>{w}</li>)}
+                </ul>
+              </AlertDescription>
             </div>
           </Alert>
         </div>

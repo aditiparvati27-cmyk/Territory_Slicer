@@ -3,7 +3,7 @@ import {
   LayoutDashboard,
   Database,
   Bell,
-  ChevronDown
+  LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,14 +18,9 @@ export function Sidebar() {
   return (
     <div className="w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground flex flex-col h-screen fixed left-0 top-0 z-10">
       <div className="p-4 h-14 flex items-center border-b border-sidebar-border/40">
-        <div className="flex items-center gap-3 font-semibold text-sidebar-primary-foreground">
-          <img
-            src="/profound-wordmark.png"
-            alt="Profound"
-            className="h-6 w-auto opacity-95"
-            data-testid="img-profound-wordmark"
-          />
-          <ChevronDown className="w-4 h-4 text-muted-foreground ml-auto" />
+        <div className="flex items-center gap-2 font-semibold text-sidebar-primary-foreground">
+          <LayoutGrid className="w-5 h-5 text-chart-1" />
+          <span className="text-sm tracking-tight">Territory Slicer</span>
         </div>
       </div>
 
@@ -48,11 +43,19 @@ export function Sidebar() {
   );
 }
 
+const breadcrumbMap: Record<string, string> = {
+  "/": "Home",
+  "/dataset": "Upload Dataset",
+};
+
 export function Header() {
+  const [location] = useLocation();
+  const pageLabel = breadcrumbMap[location] || "Home";
+
   return (
     <header className="h-14 border-b border-border bg-background flex items-center px-6 justify-between sticky top-0 z-0 pl-72">
       <div className="text-sm text-muted-foreground">
-        Profound &gt; <span className="text-foreground">Home</span>
+        Territory Slicer &gt; <span className="text-foreground">{pageLabel}</span>
       </div>
       <div className="flex items-center gap-4">
         <button className="p-2 hover:bg-secondary rounded-full">

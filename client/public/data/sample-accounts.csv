@@ -1,0 +1,501 @@
+Account_ID,Account_Name,Current_Rep,ARR,Location,Num_Employees,Num_Marketers,Risk_Score
+ACC-1000,Acme Corp,Lisa Wang,45177,TX,54503,4360,99
+ACC-1001,TechStart Inc,Michael Brown,80367,NY,86168,6893,44
+ACC-1002,GreenLeaf Solutions,Rachel Patel,372623,NY,190538,15245,3
+ACC-1003,MedConnect Health,Rachel Patel,53388,TX,82643,6614,43
+ACC-1004,PrimeWell Insurance,David Kim,19321,TX,51913,4154,1
+ACC-1005,Atlas Energy,David Kim,413893,NC,149741,11980,19
+ACC-1006,Summit Capital,Chris Johnson,340913,MI,3061,246,49
+ACC-1007,DataSphere Analytics,David Kim,488940,NC,198511,15881,15
+ACC-1008,MediFlow Logistics,David Kim,376632,OH,198904,15913,23
+ACC-1009,PharmaBridge Supply,Lisa Wang,349511,MI,143352,11468,93
+ACC-1010,BulkMart Retail,Michael Brown,285656,TX,5487,441,71
+ACC-1011,CarePath Benefits,Chris Johnson,126521,GA,127982,10240,44
+ACC-1012,SignalWave Telecom,Lisa Wang,41806,FL,18093,1449,61
+ACC-1013,CloudNova Systems,Rachel Patel,182793,PA,92662,7415,8
+ACC-1014,VitalSource Medical,Chris Johnson,456854,TX,9554,764,1
+ACC-1015,Horizon Petroleum,Sarah Chen,330235,NC,86212,6898,68
+ACC-1016,BuildRight Hardware,Lisa Wang,111667,CA,27895,2232,28
+ACC-1017,QuickCare Pharmacy,Sarah Chen,105255,CA,183447,14676,35
+ACC-1018,TrailBlaze Fuels,James Miller,393953,GA,83649,6692,60
+ACC-1019,WellBridge Health,Chris Johnson,24240,IL,29734,2379,70
+ACC-1020,Apex Auto Manufacturing,Alex Torres,248440,IL,111469,8917,56
+ACC-1021,MotionDrive Vehicles,David Kim,444656,TX,110190,8818,43
+ACC-1022,Pinnacle Financial,Maria Garcia,300880,IL,78435,6275,5
+ACC-1023,NetPulse Communications,Alex Torres,154033,FL,181066,14488,16
+ACC-1024,HealthFirst Managed Care,James Miller,243538,MI,113652,9093,65
+ACC-1025,SocialGrid Technologies,Sarah Chen,35764,TX,158500,12680,85
+ACC-1026,StreamLine Media,Chris Johnson,445549,OH,7536,602,20
+ACC-1027,FuelCraft Energy,Lisa Wang,41602,NC,178713,14299,25
+ACC-1028,SunRidge Refining,Alex Torres,80298,PA,133662,10693,4
+ACC-1029,ByteForce Computing,Michael Brown,271319,MI,47848,3827,3
+ACC-1030,ShopSmart Retail,Emily Davis,226223,NC,24508,1963,43
+ACC-1031,HomeBase Mortgage,Chris Johnson,381301,TX,54079,4328,51
+ACC-1032,SwiftShip Logistics,Michael Brown,100493,CA,169863,13590,27
+ACC-1033,RenovateRight Supplies,Maria Garcia,309609,IL,137522,11003,6
+ACC-1034,Liberty Banking,James Miller,478784,GA,40962,3277,28
+ACC-1035,BioVance Pharma,David Kim,132493,OH,133497,10679,15
+ACC-1036,RapidRoute Delivery,Alex Torres,259724,CA,81523,6522,60
+ACC-1037,CareFirst Plans,Alex Torres,42644,FL,190927,15276,35
+ACC-1038,WestPoint Finance,Maria Garcia,367913,MI,187050,14967,91
+ACC-1039,ShieldGuard Insurance,Chris Johnson,209633,GA,136180,10897,31
+ACC-1040,NovaCure Biotech,James Miller,221383,OH,38624,3089,87
+ACC-1041,GlobalEdge Bank,Lisa Wang,499820,MI,53278,4265,19
+ACC-1042,FreshWave Beverages,James Miller,144200,NY,4566,367,24
+ACC-1043,ChipLogic Semiconductors,Lisa Wang,348207,NY,198202,15859,87
+ACC-1044,EverBright Consumer,Michael Brown,433241,NC,110107,8811,25
+ACC-1045,PowerGrid Industrial,David Kim,120037,GA,41371,3309,72
+ACC-1046,CoreTech Enterprise,Chris Johnson,33250,NY,34282,2744,78
+ACC-1047,SafeHaven Life,Alex Torres,465572,TX,7690,615,15
+ACC-1048,TrustPoint Financial,Alex Torres,171639,OH,59682,4775,50
+ACC-1049,StarVision Entertainment,Alex Torres,232322,MI,136915,10953,86
+ACC-1050,Acme Corp Corp,Maria Garcia,22531,IL,157858,12628,54
+ACC-1051,TechStart Inc Corp,Alex Torres,150454,TX,115625,9253,4
+ACC-1052,GreenLeaf Solutions Corp,Lisa Wang,213726,TX,183661,14693,37
+ACC-1053,MedConnect Health Corp,Michael Brown,317294,NC,62616,5011,40
+ACC-1054,PrimeWell Insurance Corp,Alex Torres,187629,CA,146449,11715,82
+ACC-1055,Atlas Energy Corp,Lisa Wang,58013,IL,57112,4570,93
+ACC-1056,Summit Capital Corp,Alex Torres,493187,GA,141133,11293,88
+ACC-1057,DataSphere Analytics Corp,Emily Davis,343592,IL,142629,11412,74
+ACC-1058,MediFlow Logistics Corp,Michael Brown,336024,NC,117923,9433,81
+ACC-1059,PharmaBridge Supply Corp,James Miller,167200,TX,100174,8013,70
+ACC-1060,BulkMart Retail Corp,Chris Johnson,417001,PA,141290,11306,69
+ACC-1061,CarePath Benefits Corp,David Kim,335066,MI,155023,12403,80
+ACC-1062,SignalWave Telecom Corp,Sarah Chen,32560,TX,13869,1109,8
+ACC-1063,CloudNova Systems Corp,Lisa Wang,53254,GA,94056,7526,97
+ACC-1064,VitalSource Medical Corp,Emily Davis,444303,MI,82415,6593,50
+ACC-1065,Horizon Petroleum Corp,Alex Torres,195695,TX,35690,2856,90
+ACC-1066,BuildRight Hardware Corp,David Kim,488036,FL,132291,10583,92
+ACC-1067,QuickCare Pharmacy Corp,Maria Garcia,83363,IL,68333,5467,53
+ACC-1068,TrailBlaze Fuels Corp,Sarah Chen,352063,FL,96506,7721,37
+ACC-1069,WellBridge Health Corp,James Miller,340902,PA,143169,11455,61
+ACC-1070,Apex Auto Manufacturing Corp,Lisa Wang,104743,NC,70624,5651,10
+ACC-1071,MotionDrive Vehicles Corp,Michael Brown,330810,IL,144554,11566,5
+ACC-1072,Pinnacle Financial Corp,Chris Johnson,189526,GA,26307,2107,64
+ACC-1073,NetPulse Communications Corp,Sarah Chen,485645,NC,153685,12295,54
+ACC-1074,HealthFirst Managed Care Corp,Lisa Wang,203078,PA,35992,2882,4
+ACC-1075,SocialGrid Technologies Corp,Alex Torres,275623,PA,189807,15184,83
+ACC-1076,StreamLine Media Corp,Alex Torres,402166,OH,142573,11405,29
+ACC-1077,FuelCraft Energy Corp,Chris Johnson,104251,CA,198533,15885,13
+ACC-1078,SunRidge Refining Corp,Maria Garcia,290536,NC,85513,6842,94
+ACC-1079,ByteForce Computing Corp,Maria Garcia,279377,GA,20271,1623,90
+ACC-1080,ShopSmart Retail Corp,Sarah Chen,226367,PA,24472,1958,96
+ACC-1081,HomeBase Mortgage Corp,Maria Garcia,16045,NY,169791,13586,36
+ACC-1082,SwiftShip Logistics Corp,Chris Johnson,124019,OH,149407,11953,70
+ACC-1083,RenovateRight Supplies Corp,David Kim,206554,TX,121635,9732,24
+ACC-1084,Liberty Banking Corp,Michael Brown,496157,NY,73490,5881,96
+ACC-1085,BioVance Pharma Corp,Emily Davis,193186,MI,76872,6152,78
+ACC-1086,RapidRoute Delivery Corp,Michael Brown,491910,NY,62416,4994,23
+ACC-1087,CareFirst Plans Corp,Maria Garcia,379080,MI,45958,3679,12
+ACC-1088,WestPoint Finance Corp,James Miller,211218,PA,198397,15874,99
+ACC-1089,ShieldGuard Insurance Corp,Maria Garcia,378597,GA,43342,3470,25
+ACC-1090,NovaCure Biotech Corp,Maria Garcia,346751,CA,186672,14935,97
+ACC-1091,GlobalEdge Bank Corp,Lisa Wang,274482,MI,123136,9853,71
+ACC-1092,FreshWave Beverages Corp,Rachel Patel,408919,NC,39121,3132,4
+ACC-1093,ChipLogic Semiconductors Corp,Michael Brown,418542,OH,46890,3751,88
+ACC-1094,EverBright Consumer Corp,Sarah Chen,271964,PA,150809,12064,80
+ACC-1095,PowerGrid Industrial Corp,Michael Brown,469912,CA,133848,10707,25
+ACC-1096,CoreTech Enterprise Corp,Alex Torres,35370,PA,62454,4996,81
+ACC-1097,SafeHaven Life Corp,Alex Torres,232366,NY,122544,9803,76
+ACC-1098,TrustPoint Financial Corp,Maria Garcia,78526,TX,136332,10909,36
+ACC-1099,StarVision Entertainment Corp,Emily Davis,69882,MI,198038,15844,79
+ACC-1100,Acme Corp LLC,Alex Torres,62117,MI,154266,12343,75
+ACC-1101,TechStart Inc LLC,Sarah Chen,264522,OH,169405,13553,78
+ACC-1102,GreenLeaf Solutions LLC,Alex Torres,463752,FL,68958,5516,10
+ACC-1103,MedConnect Health LLC,Michael Brown,231977,PA,22866,1832,38
+ACC-1104,PrimeWell Insurance LLC,Lisa Wang,64102,MI,62281,4982,34
+ACC-1105,Atlas Energy LLC,Sarah Chen,262956,GA,5965,477,90
+ACC-1106,Summit Capital LLC,Maria Garcia,205240,CA,113583,9089,91
+ACC-1107,DataSphere Analytics LLC,Chris Johnson,330230,CA,141076,11289,25
+ACC-1108,MediFlow Logistics LLC,Chris Johnson,109655,GA,23887,1913,37
+ACC-1109,PharmaBridge Supply LLC,James Miller,101444,MI,102320,8187,52
+ACC-1110,BulkMart Retail LLC,David Kim,141790,MI,90321,7225,25
+ACC-1111,CarePath Benefits LLC,Chris Johnson,313644,IL,174143,13931,92
+ACC-1112,SignalWave Telecom LLC,Sarah Chen,286259,NC,95260,7621,97
+ACC-1113,CloudNova Systems LLC,James Miller,439667,PA,122690,9815,43
+ACC-1114,VitalSource Medical LLC,Emily Davis,111556,GA,167650,13415,51
+ACC-1115,Horizon Petroleum LLC,Maria Garcia,228971,TX,106887,8552,80
+ACC-1116,BuildRight Hardware LLC,Maria Garcia,159604,PA,3156,254,41
+ACC-1117,QuickCare Pharmacy LLC,Sarah Chen,173644,NY,95207,7618,28
+ACC-1118,TrailBlaze Fuels LLC,Chris Johnson,301957,NY,148974,11919,89
+ACC-1119,WellBridge Health LLC,Alex Torres,310627,MI,158305,12667,37
+ACC-1120,Apex Auto Manufacturing LLC,Maria Garcia,300924,NC,60588,4849,68
+ACC-1121,MotionDrive Vehicles LLC,Lisa Wang,303173,GA,11615,930,58
+ACC-1122,Pinnacle Financial LLC,Lisa Wang,72123,IL,56984,4558,24
+ACC-1123,NetPulse Communications LLC,David Kim,430285,TX,29051,2326,74
+ACC-1124,HealthFirst Managed Care LLC,Alex Torres,41167,FL,186191,14896,78
+ACC-1125,SocialGrid Technologies LLC,Michael Brown,422506,PA,3278,264,75
+ACC-1126,StreamLine Media LLC,Maria Garcia,162370,CA,133300,10666,21
+ACC-1127,FuelCraft Energy LLC,Lisa Wang,164484,CA,3791,304,81
+ACC-1128,SunRidge Refining LLC,Rachel Patel,234430,PA,93443,7475,54
+ACC-1129,ByteForce Computing LLC,David Kim,396830,NC,103006,8243,40
+ACC-1130,ShopSmart Retail LLC,Maria Garcia,407884,TX,197933,15834,57
+ACC-1131,HomeBase Mortgage LLC,Alex Torres,190939,IL,111378,8912,99
+ACC-1132,SwiftShip Logistics LLC,Chris Johnson,10911,CA,170485,13641,84
+ACC-1133,RenovateRight Supplies LLC,Michael Brown,201780,PA,90697,7257,24
+ACC-1134,Liberty Banking LLC,Emily Davis,212124,FL,128107,10251,4
+ACC-1135,BioVance Pharma LLC,Maria Garcia,85981,NC,54357,4348,73
+ACC-1136,RapidRoute Delivery LLC,Maria Garcia,321364,OH,123271,9864,18
+ACC-1137,CareFirst Plans LLC,Maria Garcia,63018,FL,199582,15967,67
+ACC-1138,WestPoint Finance LLC,David Kim,124964,PA,5024,404,85
+ACC-1139,ShieldGuard Insurance LLC,Chris Johnson,70723,PA,176798,14145,93
+ACC-1140,NovaCure Biotech LLC,James Miller,250969,NY,46522,3723,62
+ACC-1141,GlobalEdge Bank LLC,Alex Torres,485500,IL,99093,7928,96
+ACC-1142,FreshWave Beverages LLC,James Miller,275259,NC,67225,5380,91
+ACC-1143,ChipLogic Semiconductors LLC,Lisa Wang,424013,IL,119828,9586,12
+ACC-1144,EverBright Consumer LLC,Chris Johnson,157846,NY,195503,15640,90
+ACC-1145,PowerGrid Industrial LLC,Rachel Patel,17111,CA,11002,882,91
+ACC-1146,CoreTech Enterprise LLC,Rachel Patel,448817,TX,181073,14487,57
+ACC-1147,SafeHaven Life LLC,Maria Garcia,477622,CA,152014,12164,59
+ACC-1148,TrustPoint Financial LLC,Chris Johnson,303294,FL,39123,3132,52
+ACC-1149,StarVision Entertainment LLC,Rachel Patel,115834,PA,97964,7840,24
+ACC-1150,Acme Corp Group,Alex Torres,64278,GA,58313,4667,97
+ACC-1151,TechStart Inc Group,Maria Garcia,201136,GA,132136,10571,50
+ACC-1152,GreenLeaf Solutions Group,Emily Davis,304865,OH,96979,7760,94
+ACC-1153,MedConnect Health Group,Emily Davis,386717,NY,114897,9191,90
+ACC-1154,PrimeWell Insurance Group,Emily Davis,24578,PA,81182,6496,87
+ACC-1155,Atlas Energy Group,Alex Torres,411279,FL,68040,5444,75
+ACC-1156,Summit Capital Group,Rachel Patel,322016,MI,51949,4157,82
+ACC-1157,DataSphere Analytics Group,Emily Davis,70522,GA,8719,700,19
+ACC-1158,MediFlow Logistics Group,Lisa Wang,443102,NC,94663,7574,98
+ACC-1159,PharmaBridge Supply Group,Alex Torres,240114,TX,188389,15074,1
+ACC-1160,BulkMart Retail Group,Sarah Chen,487427,OH,93767,7501,27
+ACC-1161,CarePath Benefits Group,David Kim,64805,MI,25440,2037,40
+ACC-1162,SignalWave Telecom Group,Sarah Chen,394025,NY,156922,12556,18
+ACC-1163,CloudNova Systems Group,David Kim,451743,CA,43681,3497,28
+ACC-1164,VitalSource Medical Group,Sarah Chen,417983,NC,91220,7300,6
+ACC-1165,Horizon Petroleum Group,Michael Brown,10147,GA,129699,10378,71
+ACC-1166,BuildRight Hardware Group,Lisa Wang,48507,FL,143397,11471,6
+ACC-1167,QuickCare Pharmacy Group,Chris Johnson,126762,MI,19769,1584,66
+ACC-1168,TrailBlaze Fuels Group,Michael Brown,324838,TX,52158,4172,15
+ACC-1169,WellBridge Health Group,David Kim,96456,GA,51739,4142,72
+ACC-1170,Apex Auto Manufacturing Group,Lisa Wang,325603,FL,164864,13191,50
+ACC-1171,MotionDrive Vehicles Group,Sarah Chen,257191,GA,135873,10871,86
+ACC-1172,Pinnacle Financial Group,Sarah Chen,394907,TX,51770,4141,81
+ACC-1173,NetPulse Communications Group,Alex Torres,419905,PA,65893,5273,64
+ACC-1174,HealthFirst Managed Care Group,David Kim,425408,FL,92533,7402,2
+ACC-1175,SocialGrid Technologies Group,Michael Brown,51690,OH,192598,15409,6
+ACC-1176,StreamLine Media Group,Alex Torres,170245,MI,80537,6444,9
+ACC-1177,FuelCraft Energy Group,James Miller,410676,NC,80727,6461,4
+ACC-1178,SunRidge Refining Group,Maria Garcia,271796,MI,136478,10918,50
+ACC-1179,ByteForce Computing Group,Michael Brown,57121,MI,38245,3062,47
+ACC-1180,ShopSmart Retail Group,Lisa Wang,326015,TX,95093,7609,74
+ACC-1181,HomeBase Mortgage Group,Emily Davis,196277,GA,120681,9655,58
+ACC-1182,SwiftShip Logistics Group,Maria Garcia,469182,FL,143932,11515,60
+ACC-1183,RenovateRight Supplies Group,Sarah Chen,463401,FL,25634,2052,87
+ACC-1184,Liberty Banking Group,Lisa Wang,481058,NC,85709,6859,52
+ACC-1185,BioVance Pharma Group,Rachel Patel,395749,NC,40830,3268,96
+ACC-1186,RapidRoute Delivery Group,Michael Brown,318038,CA,33622,2690,85
+ACC-1187,CareFirst Plans Group,David Kim,275416,OH,105996,8480,76
+ACC-1188,WestPoint Finance Group,Maria Garcia,483677,TX,118836,9506,4
+ACC-1189,ShieldGuard Insurance Group,Chris Johnson,462279,CA,109661,8774,10
+ACC-1190,NovaCure Biotech Group,Michael Brown,477591,FL,55303,4424,4
+ACC-1191,GlobalEdge Bank Group,James Miller,460432,MI,33551,2686,6
+ACC-1192,FreshWave Beverages Group,James Miller,385166,OH,91614,7332,95
+ACC-1193,ChipLogic Semiconductors Group,Sarah Chen,183818,CA,157033,12563,35
+ACC-1194,EverBright Consumer Group,James Miller,123968,PA,52721,4220,11
+ACC-1195,PowerGrid Industrial Group,David Kim,470292,PA,187882,15030,74
+ACC-1196,CoreTech Enterprise Group,Michael Brown,321205,CA,177907,14232,43
+ACC-1197,SafeHaven Life Group,James Miller,165163,IL,132099,10568,7
+ACC-1198,TrustPoint Financial Group,James Miller,109371,GA,147244,11781,99
+ACC-1199,StarVision Entertainment Group,James Miller,94939,NY,174446,13955,30
+ACC-1200,Acme Corp Holdings,Chris Johnson,18878,MI,93389,7471,56
+ACC-1201,TechStart Inc Holdings,Emily Davis,216673,PA,158648,12694,89
+ACC-1202,GreenLeaf Solutions Holdings,Chris Johnson,144247,CA,124040,9925,44
+ACC-1203,MedConnect Health Holdings,Alex Torres,21290,IL,99642,7972,45
+ACC-1204,PrimeWell Insurance Holdings,Alex Torres,167583,NC,183973,14719,51
+ACC-1205,Atlas Energy Holdings,James Miller,127902,NC,186080,14887,41
+ACC-1206,Summit Capital Holdings,Sarah Chen,405970,IL,68198,5457,49
+ACC-1207,DataSphere Analytics Holdings,Maria Garcia,424473,NY,45309,3625,30
+ACC-1208,MediFlow Logistics Holdings,Michael Brown,360667,NC,79194,6337,84
+ACC-1209,PharmaBridge Supply Holdings,Maria Garcia,469708,TX,14940,1198,68
+ACC-1210,BulkMart Retail Holdings,David Kim,429600,GA,189196,15137,36
+ACC-1211,CarePath Benefits Holdings,Alex Torres,162080,NC,21603,1729,53
+ACC-1212,SignalWave Telecom Holdings,David Kim,382586,OH,19137,1530,5
+ACC-1213,CloudNova Systems Holdings,Michael Brown,386647,OH,64525,5164,15
+ACC-1214,VitalSource Medical Holdings,Lisa Wang,36830,IL,135360,10830,95
+ACC-1215,Horizon Petroleum Holdings,Chris Johnson,162187,FL,77619,6209,41
+ACC-1216,BuildRight Hardware Holdings,Sarah Chen,67947,NC,157211,12579,60
+ACC-1217,QuickCare Pharmacy Holdings,Lisa Wang,138332,FL,196209,15696,53
+ACC-1218,TrailBlaze Fuels Holdings,Maria Garcia,22318,NC,167331,13386,20
+ACC-1219,WellBridge Health Holdings,Maria Garcia,90087,PA,38577,3086,59
+ACC-1220,Apex Auto Manufacturing Holdings,Emily Davis,367786,NC,117948,9438,47
+ACC-1221,MotionDrive Vehicles Holdings,Chris Johnson,410765,OH,14257,1140,58
+ACC-1222,Pinnacle Financial Holdings,David Kim,301909,IL,133266,10661,94
+ACC-1223,NetPulse Communications Holdings,Sarah Chen,143769,TX,120878,9673,76
+ACC-1224,HealthFirst Managed Care Holdings,Chris Johnson,363638,PA,14669,1174,87
+ACC-1225,SocialGrid Technologies Holdings,Lisa Wang,330994,NC,114174,9135,76
+ACC-1226,StreamLine Media Holdings,Maria Garcia,454915,MI,82900,6632,70
+ACC-1227,FuelCraft Energy Holdings,Emily Davis,342172,NC,112821,9028,79
+ACC-1228,SunRidge Refining Holdings,Michael Brown,482173,MI,16588,1330,10
+ACC-1229,ByteForce Computing Holdings,James Miller,160736,IL,108907,8715,20
+ACC-1230,ShopSmart Retail Holdings,Sarah Chen,80345,NC,36703,2939,48
+ACC-1231,HomeBase Mortgage Holdings,Rachel Patel,374886,NC,167947,13437,44
+ACC-1232,SwiftShip Logistics Holdings,Emily Davis,45033,NY,108667,8693,63
+ACC-1233,RenovateRight Supplies Holdings,Lisa Wang,170592,OH,38385,3071,37
+ACC-1234,Liberty Banking Holdings,James Miller,319634,MI,86683,6937,35
+ACC-1235,BioVance Pharma Holdings,Emily Davis,280767,GA,58774,4704,26
+ACC-1236,RapidRoute Delivery Holdings,Maria Garcia,307591,FL,181051,14485,16
+ACC-1237,CareFirst Plans Holdings,Emily Davis,489804,TX,2529,204,10
+ACC-1238,WestPoint Finance Holdings,Maria Garcia,331350,OH,67487,5400,89
+ACC-1239,ShieldGuard Insurance Holdings,Michael Brown,375867,FL,119448,9557,87
+ACC-1240,NovaCure Biotech Holdings,Emily Davis,14816,NY,50032,4002,98
+ACC-1241,GlobalEdge Bank Holdings,James Miller,27093,TX,177861,14229,79
+ACC-1242,FreshWave Beverages Holdings,Chris Johnson,342854,OH,168645,13491,98
+ACC-1243,ChipLogic Semiconductors Holdings,Lisa Wang,490949,MI,188379,15071,3
+ACC-1244,EverBright Consumer Holdings,Sarah Chen,492849,NC,159650,12774,17
+ACC-1245,PowerGrid Industrial Holdings,James Miller,409164,NC,147494,11801,20
+ACC-1246,CoreTech Enterprise Holdings,Chris Johnson,355421,FL,8345,670,76
+ACC-1247,SafeHaven Life Holdings,Rachel Patel,262085,PA,150491,12042,93
+ACC-1248,TrustPoint Financial Holdings,David Kim,100455,GA,20837,1667,37
+ACC-1249,StarVision Entertainment Holdings,Maria Garcia,151687,OH,121405,9713,54
+ACC-1250,Acme Corp International,James Miller,322747,IL,14524,1162,13
+ACC-1251,TechStart Inc International,Rachel Patel,342213,NC,15868,1271,5
+ACC-1252,GreenLeaf Solutions International,David Kim,413723,CA,124747,9982,4
+ACC-1253,MedConnect Health International,David Kim,450404,PA,28619,2291,28
+ACC-1254,PrimeWell Insurance International,Emily Davis,457890,CA,103445,8275,42
+ACC-1255,Atlas Energy International,Sarah Chen,433421,CA,56536,4524,50
+ACC-1256,Summit Capital International,Rachel Patel,219872,CA,10556,844,62
+ACC-1257,DataSphere Analytics International,Lisa Wang,436506,NY,185294,14824,20
+ACC-1258,MediFlow Logistics International,James Miller,33578,MI,187704,15016,93
+ACC-1259,PharmaBridge Supply International,James Miller,211082,NY,41492,3320,97
+ACC-1260,BulkMart Retail International,Sarah Chen,485119,FL,27301,2186,52
+ACC-1261,CarePath Benefits International,Sarah Chen,355084,NY,92140,7373,73
+ACC-1262,SignalWave Telecom International,Alex Torres,101970,MI,49739,3980,64
+ACC-1263,CloudNova Systems International,Alex Torres,400446,CA,133553,10686,13
+ACC-1264,VitalSource Medical International,James Miller,55350,PA,40517,3244,35
+ACC-1265,Horizon Petroleum International,James Miller,319288,IL,160566,12846,60
+ACC-1266,BuildRight Hardware International,Alex Torres,409572,MI,85294,6823,82
+ACC-1267,QuickCare Pharmacy International,Alex Torres,495065,NC,115242,9219,72
+ACC-1268,TrailBlaze Fuels International,Alex Torres,459333,NY,133492,10681,1
+ACC-1269,WellBridge Health International,Lisa Wang,417632,CA,147390,11792,78
+ACC-1270,Apex Auto Manufacturing International,Sarah Chen,40759,IL,52206,4178,80
+ACC-1271,MotionDrive Vehicles International,Maria Garcia,154140,NC,15679,1254,79
+ACC-1272,Pinnacle Financial International,Maria Garcia,366777,MI,140389,11231,98
+ACC-1273,NetPulse Communications International,David Kim,471766,NC,88159,7053,32
+ACC-1274,HealthFirst Managed Care International,Lisa Wang,366755,TX,170725,13658,71
+ACC-1275,SocialGrid Technologies International,Michael Brown,443266,MI,111947,8955,95
+ACC-1276,StreamLine Media International,Sarah Chen,167630,OH,130125,10411,63
+ACC-1277,FuelCraft Energy International,Maria Garcia,70533,PA,26237,2100,91
+ACC-1278,SunRidge Refining International,Emily Davis,326423,NC,154856,12390,88
+ACC-1279,ByteForce Computing International,James Miller,102648,NC,170773,13664,12
+ACC-1280,ShopSmart Retail International,David Kim,363422,PA,145670,11654,3
+ACC-1281,HomeBase Mortgage International,Emily Davis,67934,NC,68778,5503,41
+ACC-1282,SwiftShip Logistics International,James Miller,232901,CA,148855,11908,54
+ACC-1283,RenovateRight Supplies International,Emily Davis,128925,PA,114624,9172,97
+ACC-1284,Liberty Banking International,Sarah Chen,129347,IL,63881,5113,96
+ACC-1285,BioVance Pharma International,Lisa Wang,240303,PA,54874,4389,26
+ACC-1286,RapidRoute Delivery International,James Miller,19269,PA,63782,5105,23
+ACC-1287,CareFirst Plans International,Lisa Wang,54669,GA,11326,906,46
+ACC-1288,WestPoint Finance International,David Kim,25827,OH,10480,838,31
+ACC-1289,ShieldGuard Insurance International,Rachel Patel,76761,GA,172503,13802,82
+ACC-1290,NovaCure Biotech International,Michael Brown,190703,NC,38749,3101,74
+ACC-1291,GlobalEdge Bank International,Alex Torres,193855,FL,77582,6209,28
+ACC-1292,FreshWave Beverages International,Michael Brown,149847,PA,62170,4973,32
+ACC-1293,ChipLogic Semiconductors International,Lisa Wang,408881,MI,9290,745,85
+ACC-1294,EverBright Consumer International,Sarah Chen,422363,NC,29075,2328,33
+ACC-1295,PowerGrid Industrial International,Maria Garcia,69403,NY,13203,1056,65
+ACC-1296,CoreTech Enterprise International,Michael Brown,69441,CA,14646,1172,33
+ACC-1297,SafeHaven Life International,Maria Garcia,386730,OH,43448,3475,87
+ACC-1298,TrustPoint Financial International,Lisa Wang,371206,NC,49096,3930,76
+ACC-1299,StarVision Entertainment International,Sarah Chen,372262,FL,103752,8302,43
+ACC-1300,Acme Corp North America,Sarah Chen,114796,NC,15989,1281,22
+ACC-1301,TechStart Inc North America,Maria Garcia,191163,OH,50561,4044,37
+ACC-1302,GreenLeaf Solutions North America,Alex Torres,224503,GA,69050,5526,27
+ACC-1303,MedConnect Health North America,Michael Brown,64084,PA,169245,13539,36
+ACC-1304,PrimeWell Insurance North America,Maria Garcia,380601,NC,173526,13884,71
+ACC-1305,Atlas Energy North America,Lisa Wang,187785,MI,109567,8765,12
+ACC-1306,Summit Capital North America,Sarah Chen,183591,TX,160640,12853,47
+ACC-1307,DataSphere Analytics North America,Sarah Chen,346561,PA,145436,11635,40
+ACC-1308,MediFlow Logistics North America,Chris Johnson,299660,GA,59234,4741,19
+ACC-1309,PharmaBridge Supply North America,Michael Brown,446381,PA,78974,6317,94
+ACC-1310,BulkMart Retail North America,Rachel Patel,63349,IL,23764,1903,83
+ACC-1311,CarePath Benefits North America,Lisa Wang,163714,TX,147049,11763,50
+ACC-1312,SignalWave Telecom North America,Chris Johnson,56331,GA,190594,15247,77
+ACC-1313,CloudNova Systems North America,Chris Johnson,481940,NY,19885,1590,73
+ACC-1314,VitalSource Medical North America,Alex Torres,336846,FL,195204,15616,12
+ACC-1315,Horizon Petroleum North America,Chris Johnson,92424,TX,22716,1819,90
+ACC-1316,BuildRight Hardware North America,Sarah Chen,15145,CA,135642,10853,24
+ACC-1317,QuickCare Pharmacy North America,Sarah Chen,399843,GA,124267,9944,15
+ACC-1318,TrailBlaze Fuels North America,Maria Garcia,249555,TX,26344,2110,17
+ACC-1319,WellBridge Health North America,Maria Garcia,300119,NY,74487,5960,85
+ACC-1320,Apex Auto Manufacturing North America,Maria Garcia,491890,OH,127318,10188,9
+ACC-1321,MotionDrive Vehicles North America,Lisa Wang,351429,CA,22713,1817,45
+ACC-1322,Pinnacle Financial North America,Sarah Chen,409325,GA,163015,13042,42
+ACC-1323,NetPulse Communications North America,Rachel Patel,215289,CA,90971,7277,53
+ACC-1324,HealthFirst Managed Care North America,Alex Torres,231702,NY,13810,1105,17
+ACC-1325,SocialGrid Technologies North America,David Kim,467052,NC,12464,998,93
+ACC-1326,StreamLine Media North America,Chris Johnson,146324,FL,122281,9785,36
+ACC-1327,FuelCraft Energy North America,Michael Brown,85051,NY,32868,2629,15
+ACC-1328,SunRidge Refining North America,Alex Torres,134201,PA,124607,9968,35
+ACC-1329,ByteForce Computing North America,Sarah Chen,495319,IL,64692,5178,70
+ACC-1330,ShopSmart Retail North America,Sarah Chen,29015,IL,48886,3912,37
+ACC-1331,HomeBase Mortgage North America,Rachel Patel,453531,MI,152445,12196,42
+ACC-1332,SwiftShip Logistics North America,Rachel Patel,333128,FL,141225,11299,8
+ACC-1333,RenovateRight Supplies North America,Maria Garcia,30605,CA,193438,15478,95
+ACC-1334,Liberty Banking North America,James Miller,39601,MI,1457,117,29
+ACC-1335,BioVance Pharma North America,Rachel Patel,334348,MI,192024,15363,74
+ACC-1336,RapidRoute Delivery North America,Alex Torres,122456,IL,155201,12419,28
+ACC-1337,CareFirst Plans North America,Emily Davis,241589,TX,152805,12224,99
+ACC-1338,WestPoint Finance North America,Chris Johnson,79613,FL,12833,1029,47
+ACC-1339,ShieldGuard Insurance North America,Lisa Wang,139098,TX,179291,14345,13
+ACC-1340,NovaCure Biotech North America,David Kim,102787,GA,13810,1107,18
+ACC-1341,GlobalEdge Bank North America,Emily Davis,384091,OH,79126,6331,29
+ACC-1342,FreshWave Beverages North America,Sarah Chen,20117,OH,185534,14845,69
+ACC-1343,ChipLogic Semiconductors North America,Lisa Wang,233865,OH,81610,6531,51
+ACC-1344,EverBright Consumer North America,Michael Brown,14337,OH,146899,11751,25
+ACC-1345,PowerGrid Industrial North America,Michael Brown,239640,GA,38252,3061,19
+ACC-1346,CoreTech Enterprise North America,Alex Torres,168660,FL,84596,6770,27
+ACC-1347,SafeHaven Life North America,Rachel Patel,99877,GA,28417,2275,62
+ACC-1348,TrustPoint Financial North America,Rachel Patel,130114,MI,99791,7984,31
+ACC-1349,StarVision Entertainment North America,Alex Torres,335798,FL,103553,8285,73
+ACC-1350,Acme Corp USA,James Miller,437369,OH,115859,9270,70
+ACC-1351,TechStart Inc USA,David Kim,179146,NC,188482,15078,2
+ACC-1352,GreenLeaf Solutions USA,Chris Johnson,352185,CA,39869,3189,30
+ACC-1353,MedConnect Health USA,Chris Johnson,309077,IL,31660,2534,25
+ACC-1354,PrimeWell Insurance USA,Maria Garcia,125888,FL,71209,5697,54
+ACC-1355,Atlas Energy USA,David Kim,268699,MI,117540,9403,29
+ACC-1356,Summit Capital USA,Rachel Patel,399389,OH,120487,9638,45
+ACC-1357,DataSphere Analytics USA,Sarah Chen,203973,NY,13329,1069,6
+ACC-1358,MediFlow Logistics USA,Sarah Chen,86013,TX,30682,2457,42
+ACC-1359,PharmaBridge Supply USA,Michael Brown,191229,GA,128642,10291,48
+ACC-1360,BulkMart Retail USA,Sarah Chen,26813,MI,11967,960,84
+ACC-1361,CarePath Benefits USA,Emily Davis,79388,CA,66474,5320,46
+ACC-1362,SignalWave Telecom USA,Sarah Chen,327418,TX,182985,14641,9
+ACC-1363,CloudNova Systems USA,Alex Torres,457551,FL,33223,2657,68
+ACC-1364,VitalSource Medical USA,Michael Brown,21087,MI,45231,3620,80
+ACC-1365,Horizon Petroleum USA,Chris Johnson,221355,FL,119373,9551,62
+ACC-1366,BuildRight Hardware USA,Emily Davis,167001,CA,30215,2420,17
+ACC-1367,QuickCare Pharmacy USA,Lisa Wang,355303,GA,45226,3620,72
+ACC-1368,TrailBlaze Fuels USA,Alex Torres,422251,TX,86624,6930,43
+ACC-1369,WellBridge Health USA,James Miller,410426,FL,38563,3087,93
+ACC-1370,Apex Auto Manufacturing USA,Sarah Chen,392696,NY,138412,11072,71
+ACC-1371,MotionDrive Vehicles USA,Rachel Patel,416588,TX,66711,5339,51
+ACC-1372,Pinnacle Financial USA,Alex Torres,30943,FL,76144,6091,88
+ACC-1373,NetPulse Communications USA,Rachel Patel,146686,TX,81361,6508,89
+ACC-1374,HealthFirst Managed Care USA,Michael Brown,235040,PA,170271,13622,77
+ACC-1375,SocialGrid Technologies USA,Emily Davis,479264,NY,63128,5050,36
+ACC-1376,StreamLine Media USA,David Kim,102721,IL,12919,1035,80
+ACC-1377,FuelCraft Energy USA,Rachel Patel,423348,OH,84077,6727,32
+ACC-1378,SunRidge Refining USA,Alex Torres,280062,NY,137082,10969,78
+ACC-1379,ByteForce Computing USA,Lisa Wang,200610,FL,137101,10969,71
+ACC-1380,ShopSmart Retail USA,James Miller,446452,NY,106792,8545,66
+ACC-1381,HomeBase Mortgage USA,Lisa Wang,273572,GA,84550,6764,56
+ACC-1382,SwiftShip Logistics USA,David Kim,476764,FL,17899,1434,25
+ACC-1383,RenovateRight Supplies USA,James Miller,19160,NC,9517,763,74
+ACC-1384,Liberty Banking USA,Sarah Chen,308665,NY,182674,14613,9
+ACC-1385,BioVance Pharma USA,Sarah Chen,24629,NY,76495,6120,97
+ACC-1386,RapidRoute Delivery USA,James Miller,261302,GA,69287,5543,78
+ACC-1387,CareFirst Plans USA,Alex Torres,145293,GA,112640,9011,41
+ACC-1388,WestPoint Finance USA,Rachel Patel,123638,CA,25499,2039,52
+ACC-1389,ShieldGuard Insurance USA,Lisa Wang,136594,MI,147804,11824,95
+ACC-1390,NovaCure Biotech USA,Maria Garcia,26017,NY,134683,10775,66
+ACC-1391,GlobalEdge Bank USA,Michael Brown,417694,CA,162674,13016,38
+ACC-1392,FreshWave Beverages USA,James Miller,421418,CA,69520,5562,61
+ACC-1393,ChipLogic Semiconductors USA,Maria Garcia,229775,IL,191820,15345,67
+ACC-1394,EverBright Consumer USA,Emily Davis,210796,NC,83045,6645,16
+ACC-1395,PowerGrid Industrial USA,Sarah Chen,214266,OH,50700,4058,64
+ACC-1396,CoreTech Enterprise USA,Emily Davis,21328,OH,159322,12748,73
+ACC-1397,SafeHaven Life USA,Rachel Patel,126860,MI,139363,11152,63
+ACC-1398,TrustPoint Financial USA,Alex Torres,448258,PA,176896,14153,90
+ACC-1399,StarVision Entertainment USA,Lisa Wang,243374,MI,128833,10308,16
+ACC-1400,Acme Corp Global,David Kim,340601,IL,76882,6153,25
+ACC-1401,TechStart Inc Global,Sarah Chen,208406,OH,191554,15326,20
+ACC-1402,GreenLeaf Solutions Global,Alex Torres,432228,TX,165106,13208,90
+ACC-1403,MedConnect Health Global,David Kim,119473,IL,19895,1594,6
+ACC-1404,PrimeWell Insurance Global,Chris Johnson,230780,NC,74310,5944,97
+ACC-1405,Atlas Energy Global,Lisa Wang,311100,OH,72027,5763,48
+ACC-1406,Summit Capital Global,Alex Torres,462653,CA,88312,7067,15
+ACC-1407,DataSphere Analytics Global,Rachel Patel,51109,IL,72822,5827,11
+ACC-1408,MediFlow Logistics Global,James Miller,159002,CA,158566,12686,83
+ACC-1409,PharmaBridge Supply Global,Emily Davis,342052,OH,136883,10953,40
+ACC-1410,BulkMart Retail Global,Alex Torres,94674,TX,184260,14740,71
+ACC-1411,CarePath Benefits Global,David Kim,428856,PA,44032,3522,18
+ACC-1412,SignalWave Telecom Global,Chris Johnson,260279,MI,61758,4943,15
+ACC-1413,CloudNova Systems Global,Rachel Patel,466300,NY,157379,12592,2
+ACC-1414,VitalSource Medical Global,Chris Johnson,359864,NC,88773,7101,64
+ACC-1415,Horizon Petroleum Global,Rachel Patel,122679,GA,178004,14242,11
+ACC-1416,BuildRight Hardware Global,Lisa Wang,44343,MI,26669,2135,97
+ACC-1417,QuickCare Pharmacy Global,Alex Torres,115203,IL,126750,10141,22
+ACC-1418,TrailBlaze Fuels Global,David Kim,460851,NC,21166,1694,28
+ACC-1419,WellBridge Health Global,Maria Garcia,288140,NY,109634,8773,58
+ACC-1420,Apex Auto Manufacturing Global,Sarah Chen,461603,CA,112470,8998,94
+ACC-1421,MotionDrive Vehicles Global,Lisa Wang,133813,TX,174977,13998,63
+ACC-1422,Pinnacle Financial Global,Michael Brown,230933,IL,90715,7260,36
+ACC-1423,NetPulse Communications Global,Rachel Patel,266207,CA,198417,15874,12
+ACC-1424,HealthFirst Managed Care Global,Michael Brown,56785,TX,61079,4889,49
+ACC-1425,SocialGrid Technologies Global,Maria Garcia,359513,FL,138552,11087,33
+ACC-1426,StreamLine Media Global,Alex Torres,266287,TX,132710,10616,50
+ACC-1427,FuelCraft Energy Global,Maria Garcia,123418,OH,160760,12861,70
+ACC-1428,SunRidge Refining Global,Emily Davis,495579,CA,81699,6535,62
+ACC-1429,ByteForce Computing Global,James Miller,252837,OH,176320,14108,92
+ACC-1430,ShopSmart Retail Global,Emily Davis,248514,MI,57343,4590,45
+ACC-1431,HomeBase Mortgage Global,Alex Torres,69649,PA,28350,2269,32
+ACC-1432,SwiftShip Logistics Global,Sarah Chen,186629,OH,19479,1558,82
+ACC-1433,RenovateRight Supplies Global,David Kim,468623,TX,162409,12994,38
+ACC-1434,Liberty Banking Global,James Miller,391545,NY,124977,9998,24
+ACC-1435,BioVance Pharma Global,James Miller,487240,CA,14531,1162,28
+ACC-1436,RapidRoute Delivery Global,James Miller,455998,NY,117742,9421,45
+ACC-1437,CareFirst Plans Global,Lisa Wang,180401,CA,134916,10793,19
+ACC-1438,WestPoint Finance Global,David Kim,150393,PA,76375,6112,58
+ACC-1439,ShieldGuard Insurance Global,Michael Brown,497365,NY,157712,12619,3
+ACC-1440,NovaCure Biotech Global,James Miller,31588,PA,178514,14283,89
+ACC-1441,GlobalEdge Bank Global,Michael Brown,74495,CA,23364,1869,54
+ACC-1442,FreshWave Beverages Global,Emily Davis,100414,TX,155572,12447,28
+ACC-1443,ChipLogic Semiconductors Global,James Miller,272878,IL,51870,4150,54
+ACC-1444,EverBright Consumer Global,Emily Davis,263822,PA,103630,8290,33
+ACC-1445,PowerGrid Industrial Global,Rachel Patel,115536,MI,86018,6884,44
+ACC-1446,CoreTech Enterprise Global,Rachel Patel,151372,PA,150329,12029,43
+ACC-1447,SafeHaven Life Global,Chris Johnson,84230,OH,120570,9648,49
+ACC-1448,TrustPoint Financial Global,Chris Johnson,447225,IL,101931,8157,34
+ACC-1449,StarVision Entertainment Global,Alex Torres,266080,NY,10874,869,31
+ACC-1450,Acme Corp Enterprises,Alex Torres,236386,CA,116536,9324,76
+ACC-1451,TechStart Inc Enterprises,David Kim,424348,TX,157863,12629,26
+ACC-1452,GreenLeaf Solutions Enterprises,Sarah Chen,24810,OH,3499,279,76
+ACC-1453,MedConnect Health Enterprises,Sarah Chen,483464,NY,96131,7693,45
+ACC-1454,PrimeWell Insurance Enterprises,Rachel Patel,386441,PA,99016,7921,93
+ACC-1455,Atlas Energy Enterprises,David Kim,174623,NC,64816,5186,71
+ACC-1456,Summit Capital Enterprises,Emily Davis,97196,TX,67369,5389,37
+ACC-1457,DataSphere Analytics Enterprises,Chris Johnson,329174,MI,21746,1740,30
+ACC-1458,MediFlow Logistics Enterprises,Lisa Wang,248678,OH,94579,7569,59
+ACC-1459,PharmaBridge Supply Enterprises,David Kim,405799,FL,109264,8743,92
+ACC-1460,BulkMart Retail Enterprises,Michael Brown,251544,FL,170898,13671,27
+ACC-1461,CarePath Benefits Enterprises,Lisa Wang,116730,NY,45179,3614,1
+ACC-1462,SignalWave Telecom Enterprises,David Kim,190177,TX,193067,15447,21
+ACC-1463,CloudNova Systems Enterprises,Rachel Patel,344184,MI,150037,12003,45
+ACC-1464,VitalSource Medical Enterprises,Michael Brown,237836,MI,15039,1205,83
+ACC-1465,Horizon Petroleum Enterprises,David Kim,160242,OH,139331,11147,7
+ACC-1466,BuildRight Hardware Enterprises,Michael Brown,273950,NC,112647,9013,12
+ACC-1467,QuickCare Pharmacy Enterprises,Rachel Patel,62001,PA,147734,11818,66
+ACC-1468,TrailBlaze Fuels Enterprises,Lisa Wang,19596,FL,37177,2975,63
+ACC-1469,WellBridge Health Enterprises,Rachel Patel,349959,IL,187651,15014,87
+ACC-1470,Apex Auto Manufacturing Enterprises,Rachel Patel,231211,GA,46251,3703,41
+ACC-1471,MotionDrive Vehicles Enterprises,Michael Brown,476215,IL,146918,11755,60
+ACC-1472,Pinnacle Financial Enterprises,Sarah Chen,356473,GA,148113,11851,41
+ACC-1473,NetPulse Communications Enterprises,Rachel Patel,240939,MI,176740,14139,40
+ACC-1474,HealthFirst Managed Care Enterprises,Rachel Patel,124774,TX,153297,12265,28
+ACC-1475,SocialGrid Technologies Enterprises,James Miller,283665,OH,24323,1945,26
+ACC-1476,StreamLine Media Enterprises,Lisa Wang,207917,OH,199788,15986,13
+ACC-1477,FuelCraft Energy Enterprises,Maria Garcia,140114,FL,66839,5348,72
+ACC-1478,SunRidge Refining Enterprises,James Miller,455760,CA,81762,6541,44
+ACC-1479,ByteForce Computing Enterprises,Maria Garcia,286207,IL,161465,12919,23
+ACC-1480,ShopSmart Retail Enterprises,Lisa Wang,37269,NY,112171,8974,55
+ACC-1481,HomeBase Mortgage Enterprises,Sarah Chen,293374,NY,115358,9229,88
+ACC-1482,SwiftShip Logistics Enterprises,Alex Torres,224958,MI,142301,11387,95
+ACC-1483,RenovateRight Supplies Enterprises,Emily Davis,417400,NC,165637,13253,38
+ACC-1484,Liberty Banking Enterprises,Alex Torres,225608,NC,135172,10814,6
+ACC-1485,BioVance Pharma Enterprises,Emily Davis,339184,OH,125378,10032,98
+ACC-1486,RapidRoute Delivery Enterprises,Rachel Patel,258205,PA,107825,8626,59
+ACC-1487,CareFirst Plans Enterprises,Michael Brown,262084,PA,86261,6901,70
+ACC-1488,WestPoint Finance Enterprises,Rachel Patel,473275,MI,76791,6145,59
+ACC-1489,ShieldGuard Insurance Enterprises,Emily Davis,441083,NY,176431,14117,91
+ACC-1490,NovaCure Biotech Enterprises,Lisa Wang,47156,MI,131193,10497,55
+ACC-1491,GlobalEdge Bank Enterprises,James Miller,260019,MI,187400,14993,74
+ACC-1492,FreshWave Beverages Enterprises,James Miller,365461,MI,11820,948,36
+ACC-1493,ChipLogic Semiconductors Enterprises,Alex Torres,281256,NY,165772,13261,94
+ACC-1494,EverBright Consumer Enterprises,James Miller,393328,FL,21916,1756,12
+ACC-1495,PowerGrid Industrial Enterprises,Emily Davis,202226,MI,180717,14459,92
+ACC-1496,CoreTech Enterprise Enterprises,Alex Torres,337666,NY,128591,10287,80
+ACC-1497,SafeHaven Life Enterprises,Lisa Wang,424857,OH,100161,8012,84
+ACC-1498,TrustPoint Financial Enterprises,Emily Davis,132666,NY,27252,2181,32
+ACC-1499,StarVision Entertainment Enterprises,Sarah Chen,269509,CA,158737,12699,16

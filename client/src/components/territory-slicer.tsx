@@ -2,9 +2,12 @@ import { useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useData, segmentAccounts, distributeAccounts, calculateRepStats, type DistributionStrategy, type Account, type RepStats, type StrategyConfig, DEFAULT_STRATEGY_CONFIG } from "@/lib/logic";
-import { Loader2, TrendingUp, Users, Target, MapPin, ShieldAlert, Scale, BrainCircuit, ChevronDown, Settings2, RotateCcw } from "lucide-react";
+import { Loader2, TrendingUp, Users, Target, MapPin, ShieldAlert, Scale, BrainCircuit, ChevronDown, Settings2, RotateCcw, Download } from "lucide-react";
+import Papa from "papaparse";
+import { saveAs } from "file-saver";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Switch } from "@/components/ui/switch";
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
@@ -39,7 +42,7 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }: any) => {
             <span className="font-mono font-medium text-destructive">{data.highRiskCount}</span>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-muted-foreground">In-State:</span>
+            <span className="text-muted-foreground">Local:</span>
             <span className="font-mono font-medium text-chart-4">{data.sameStateCount}</span>
           </div>
         </div>
@@ -190,6 +193,29 @@ export function TerritorySlicer() {
           <h1 className="text-3xl font-bold tracking-tight" data-testid="text-title">Territory Slicer</h1>
           <p className="text-muted-foreground mt-1" data-testid="text-subtitle">Optimize sales territories by employee count threshold</p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            const rows = (processedData.distributed as Account[]).map(a => ({
+              Account_ID: a.Account_ID,
+              Account_Name: a.Account_Name,
+              Assigned_Rep: a.Assigned_Rep ?? "",
+              Segment: a.Segment ?? "",
+              ARR: a.ARR,
+              Location: a.Location,
+              Num_Employees: a.Num_Employees,
+              Risk_Score: a.Risk_Score,
+              Current_Rep: a.Current_Rep,
+            }));
+            const csv = Papa.unparse(rows);
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+            saveAs(blob, `territory-assignments-${new Date().toISOString().slice(0, 10)}.csv`);
+          }}
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Download Assignments
+        </Button>
       </div>
 
       {/* CONTROL PANEL & SUMMARY */}
@@ -474,11 +500,11 @@ export function TerritorySlicer() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <MapPin className="w-4 h-4 text-chart-4" />
-                    <span className="text-sm font-medium">Overall Same-State Match</span>
+                    <span className="text-sm font-medium">Overall Location Match</span>
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-bold font-mono">{processedData.overallSameStatePct.toFixed(1)}%</span>
-                    <span className="text-xs text-chart-4 ml-2">of accounts match rep's state</span>
+                    <span className="text-xs text-chart-4 ml-2">of accounts match rep's location</span>
                   </div>
                 </div>
               </div>
@@ -529,8 +555,8 @@ export function TerritorySlicer() {
                     {/* Same-State % */}
                     <tr className="hover:bg-background/30">
                       <td className="py-3 px-2">
-                        <div className="font-medium text-foreground">Same-State %</div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">Accounts assigned to a rep in the same state — higher = less travel</div>
+                        <div className="font-medium text-foreground">Location Match %</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">Accounts assigned to a rep in the same region — higher = less travel</div>
                       </td>
                       <td className="py-3 px-2 text-center">
                         <div className="font-mono font-bold text-foreground">{processedData.entMetrics.sameStatePct.toFixed(1)}%</div>
