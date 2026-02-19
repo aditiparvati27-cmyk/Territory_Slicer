@@ -188,14 +188,15 @@ export function TerritorySlicer() {
       />
       
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-title">Territory Slicer</h1>
-          <p className="text-muted-foreground mt-1" data-testid="text-subtitle">Optimize sales territories by employee count threshold</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" data-testid="text-title">Territory Slicer</h1>
+          <p className="text-muted-foreground mt-1 text-sm" data-testid="text-subtitle">Optimize sales territories by employee count threshold</p>
         </div>
         <Button
           variant="outline"
           size="sm"
+          className="w-full sm:w-auto"
           onClick={() => {
             const rows = (processedData.distributed as Account[]).map(a => ({
               Account_ID: a.Account_ID,
@@ -232,37 +233,37 @@ export function TerritorySlicer() {
             <CardContent className="space-y-6">
             {/* THRESHOLD SLIDER */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-medium text-muted-foreground">Employee Threshold</span>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={500}
-                    max={200000}
-                    step={5000}
-                    value={threshold[0]}
-                    onChange={(e) => {
-                      const next = Number(e.target.value);
-                      if (Number.isFinite(next)) setThreshold([next]);
-                    }}
-                    onBlur={(e) => {
-                      const raw = Number(e.target.value);
-                      const clamped = Math.max(500, Math.min(200000, raw || 0));
-                      const snapped = Math.round(clamped / 5000) * 5000;
-                      setThreshold([snapped]);
-                    }}
-                    className="h-9 w-[140px] rounded-md border border-input bg-background/40 px-3 font-mono text-sm text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    data-testid="input-threshold"
-                    aria-label="Employee threshold"
-                  />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">Employee Threshold</span>
                   <Badge
                     variant="outline"
-                    className="text-lg px-3 py-1 bg-background font-mono border-chart-2/20 text-chart-2"
+                    className="text-base sm:text-lg px-2.5 py-1 bg-background font-mono border-chart-2/20 text-chart-2"
                     data-testid="badge-threshold"
                   >
                     {threshold[0].toLocaleString()}
                   </Badge>
                 </div>
+                <input
+                  type="number"
+                  min={500}
+                  max={200000}
+                  step={5000}
+                  value={threshold[0]}
+                  onChange={(e) => {
+                    const next = Number(e.target.value);
+                    if (Number.isFinite(next)) setThreshold([next]);
+                  }}
+                  onBlur={(e) => {
+                    const raw = Number(e.target.value);
+                    const clamped = Math.max(500, Math.min(200000, raw || 0));
+                    const snapped = Math.round(clamped / 5000) * 5000;
+                    setThreshold([snapped]);
+                  }}
+                  className="h-9 w-full rounded-md border border-input bg-background/40 px-3 font-mono text-sm text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  data-testid="input-threshold"
+                  aria-label="Employee threshold"
+                />
               </div>
               <Slider
                 value={threshold}
@@ -441,7 +442,7 @@ export function TerritorySlicer() {
 
         {/* VISUALIZATION CARD */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm h-[400px]">
+          <Card className="border-primary/10 shadow-lg bg-card/50 backdrop-blur-sm h-[300px] sm:h-[400px]">
              <CardHeader>
                <CardTitle className="text-lg font-medium flex items-center gap-2">
                  <TrendingUp className="w-5 h-5 text-chart-1" />
@@ -449,7 +450,7 @@ export function TerritorySlicer() {
                </CardTitle>
                <CardDescription>Visualizing revenue distribution across sales representatives</CardDescription>
              </CardHeader>
-             <CardContent className="h-[300px]">
+             <CardContent className="h-[200px] sm:h-[300px]">
                <ResponsiveContainer width="100%" height="100%">
                  <BarChart data={processedData.stats} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
@@ -495,16 +496,16 @@ export function TerritorySlicer() {
               <CardDescription>How well this strategy distributes accounts within each segment</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Overall Same-State % */}
+              {/* Overall Location Match */}
               <div className="mb-4 p-3 rounded-lg border border-border/50 bg-background/30">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="w-4 h-4 text-chart-4" />
+                    <MapPin className="w-4 h-4 text-chart-4 shrink-0" />
                     <span className="text-sm font-medium">Overall Location Match</span>
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-bold font-mono">{processedData.overallSameStatePct.toFixed(1)}%</span>
-                    <span className="text-xs text-chart-4 ml-2">of accounts match rep's location</span>
+                    <span className="text-xs text-chart-4 ml-2 hidden sm:inline">of accounts match rep's location</span>
                   </div>
                 </div>
               </div>
@@ -595,7 +596,7 @@ export function TerritorySlicer() {
         
         {/* ENTERPRISE SECTION */}
         <Card className="border-primary/10 bg-card/50">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 gap-2">
             <div>
               <CardTitle className="text-lg font-medium flex items-center gap-2 text-chart-2">
                 <Users className="w-5 h-5" />
@@ -636,12 +637,12 @@ export function TerritorySlicer() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-right">
+                  <div className="flex items-center gap-3 sm:gap-4 text-right">
                     <div>
                       <div className="text-[10px] text-muted-foreground uppercase">Accounts</div>
                       <div className="font-mono text-sm font-medium">{rep.count}</div>
                     </div>
-                    <div className="w-24">
+                    <div>
                       <div className="text-[10px] text-muted-foreground uppercase">ARR</div>
                       <div className="font-mono text-sm font-bold text-foreground">{formatCurrency(rep.totalARR)}</div>
                     </div>
@@ -654,7 +655,7 @@ export function TerritorySlicer() {
 
         {/* MID-MARKET SECTION */}
         <Card className="border-primary/10 bg-card/50">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 gap-2">
              <div>
               <CardTitle className="text-lg font-medium flex items-center gap-2 text-chart-1">
                 <Users className="w-5 h-5" />
@@ -695,12 +696,12 @@ export function TerritorySlicer() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-right">
+                  <div className="flex items-center gap-3 sm:gap-4 text-right">
                     <div>
                       <div className="text-[10px] text-muted-foreground uppercase">Accounts</div>
                       <div className="font-mono text-sm font-medium">{rep.count}</div>
                     </div>
-                    <div className="w-24">
+                    <div>
                       <div className="text-[10px] text-muted-foreground uppercase">ARR</div>
                       <div className="font-mono text-sm font-bold text-foreground">{formatCurrency(rep.totalARR)}</div>
                     </div>
