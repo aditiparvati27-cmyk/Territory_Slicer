@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DataProvider } from "@/lib/logic";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Home from "@/pages/home";
 import Dataset from "@/pages/dataset";
 import NotFound from "@/pages/not-found";
@@ -25,6 +27,8 @@ function App() {
         <DataProvider>
           <Toaster />
           <Router />
+          <Analytics />
+          <SpeedInsights />
         </DataProvider>
       </TooltipProvider>
     </QueryClientProvider>
